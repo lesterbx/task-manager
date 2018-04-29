@@ -1,6 +1,8 @@
 # task-manager
 
-> Progressive task manager for teams.
+> Example project built using VueJS and CouchDB.
+> The project consist on a collaborative task manager based on columns and cards.
+> The users can create workspaces and ivite users to work with them, each workspace is a database and can be stored in the user's device to work offline.
 
 ## Build Setup
 
@@ -17,5 +19,3 @@ npm run build
 # build for production and view the bundle analyzer report
 npm run build --report
 ```
-
-For detailed explanation on how things work, checkout the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).

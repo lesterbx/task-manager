@@ -1,0 +1,50 @@
+@import './utils.scss';
+@import "~vue-material/dist/theme/engine";
+@import '~vue-material/dist/theme/prebuilt/default.scss';
+
+@include md-register-theme("default", (
+  primary: #81c784,
+  accent: #e57373
+));
+
+@import "~vue-material/dist/theme/all";
+
+:root{
+  --md-theme-default-primary: #81c784;
+  --md-theme-default-accent: #e57373;
+  --md-theme-default-text-primary-on-primary: #fff;
+  --md-theme-default-text-primary-on-accent: #fff;
+}
+
+body {
+  margin: 0;
+}
+
+#app {
+  font-family: "Avenir", Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #2c3e50;
+}
+
+.md-app{
+  max-height: 100vh;
+}
+.md-app-toolbar, .md-toolbar{
+  min-height: 64px;
+}
+.md-app-content{
+  margin: 0;
+  min-height: calc(100vh - 64px);
+}
+
+.md-dialog{
+  overflow: scroll;
+  min-width: 90%;
+}
+
+@media screen and (min-width: 600px){
+  .md-dialog{
+    min-width: 50%;
+  }
+}
