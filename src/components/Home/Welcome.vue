@@ -1,20 +1,20 @@
 <template>
   <div class="welcome padding-top">
     <div class="home-badge big-badge">
-      <img src="/static/img/presentation.svg">
-      <div>
+      <img src="/static/img/presentation.svg" class="animated fadeIn">
+      <div class="animated fadeInUp">
         <h1>Manage your projects</h1>
         <p>
-          Keep track of the organization of your projects in an easy and efficient way.
+          Keep track of your projects and organize them in an easy and efficient way.
         </p>
         <div>
-          <md-button class="md-raised md-accent" @click="$emit('login')">Start</md-button>
+          <md-button class="md-raised md-accent" @click="setDialog('login')">Start Working</md-button>
         </div>
       </div>
     </div>
     <div class="home-badge small-badge small-badge-1">
-      <img src="/static/img/group.svg">
-      <div>
+      <img src="/static/img/group.svg" class="animated fadeIn">
+      <div class="animated fadeInRight">
         <h2 class="no-margin">Collaborative</h2>
         <p>
           Work together with your team to get the best results.
@@ -22,8 +22,8 @@
       </div>
     </div>
     <div class="home-badge small-badge small-badge-2">
-      <img src="/static/img/development.svg">
-      <div>
+      <img src="/static/img/development.svg" class="animated fadeIn">
+      <div class="animated fadeInRight">
         <h2 class="no-margin">Work Offline</h2>
         <p> 
           Access your workspaces even you are not connected.
@@ -33,8 +33,11 @@
   </div>
 </template>
 <script>
+import {mapMutations} from 'vuex'
 export default {
-
+  methods: {
+    ...mapMutations(['setDialog'])
+  }
 }
 </script>
 <style scoped>
@@ -42,9 +45,9 @@ export default {
   display: flex;
   flex-direction: column;
   font-size: 1.3em;
-  min-height: 100%;
   padding: 1em;
   padding-top: 3em;
+  min-height: calc(100vh - 64px);
 }
 .home-badge{
   text-align: center;
@@ -75,7 +78,6 @@ export default {
 }
 .big-badge{
   flex-direction: column;
-  justify-content: flex-end;
   align-items: center;
 }
 .small-badge img{

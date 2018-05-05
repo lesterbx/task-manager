@@ -1,10 +1,20 @@
 <template>
-  <md-app-toolbar md-elevation="0" class="md-primary">
+  <div>
     <div class="md-toolbar-section-start">
       <md-button @click="$emit('show-menu')" class="md-icon-button">
         <md-icon>menu</md-icon>
       </md-button>
-      <h2>Task Manager</h2>
+      <h2>{{title}}</h2>
     </div>
-  </md-app-toolbar>
+  </div>
 </template>
+<script>
+export default {
+  data () {
+    return {
+      title: 'Task Manager'
+    }
+  }
+}
+</script>
+

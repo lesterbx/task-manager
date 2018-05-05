@@ -15,7 +15,7 @@
 </template>
 <script>
 import { mapActions } from 'vuex'
-import slug from 'slug'
+import slugify from 'slugify'
 export default {
   props: ['isNew', 'id', 'show', 'workspaceId'],
   data () {
@@ -29,7 +29,7 @@ export default {
   methods: {
     ...mapActions(['createBoard']),
     newBoard (board) {
-      this.createBoard(this.workspaceId, {...board, id: slug(board.title)})
+      this.createBoard(this.workspaceId, {...board, id: slugify(board.title)})
       this.$emit('confirm')
       this.$router.push('Board')
     }
