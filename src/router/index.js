@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import store from '@/store'
 import { Workspace, Board, Home } from '../pages'
 
 Vue.use(Router)
@@ -23,27 +22,8 @@ const router = new Router({
       name: 'Board',
       component: Board
     }
-  ]
-})
-
-router.beforeEach((to, from, next) => {
-  if (!store.state.initialized) {
-    store.dispatch('getSession').then(() => {
-      store.commit('initialize')
-      if (!store.state.authenticated && to.name !== 'Home') {
-        next('/workspace/889')
-      } else {
-        next()
-      }
-    })
-  } else {
-    if (!store.state.authenticated && to.name !== '/' && to.name !== '/home') {
-      next('/')
-    } else {
-      next()
-    }
-  }
-  next()
+  ],
+  scrollBehavior: (to, from, savedPosition) => ({ x: 0, y: 0 })
 })
 
 export default router

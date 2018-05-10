@@ -19,6 +19,12 @@ function workspaceNotExist (dbhost, id) {
 function URL (config) {
   return `${config.protocol}://${config.host}:${config.port}`
 }
+function arr2obj (array) {
+  console.log(array)
+  return array.reduce((acc, el) => ({...acc, [el._id]: el}), {})
+}
+
 export { promisifyValidator }
 export { workspaceNotExist }
 export { URL }
+export { arr2obj }

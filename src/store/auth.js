@@ -8,7 +8,8 @@ const state = {
 
 const getters = {
   getAuthenticated: (state) => state.authenticated,
-  getUser: (state) => state.user
+  getUser: (state) => state.user,
+  userWorkspaces: state => state.user && state.user.workspaces
 }
 
 const mutations = {
@@ -30,8 +31,8 @@ const actions = {
   },
   fetchUser: ({ state, commit, dispatch, getters }, email) => {
     return getters.authDB.getUser(email)
-      .then(({ name, first_name, last_name, workspaces }) => {
-        return Promise.resolve({ email: name, first_name, last_name, workspaces })
+      .then(({ name, firstName, lastName, workspaces }) => {
+        return Promise.resolve({ email: name, firstName, lastName, workspaces })
       })
       .catch(() => Promise.reject('No user'))
   },
@@ -41,10 +42,11 @@ const actions = {
       .then(() => promisifyValidator(validateUser, { name: email, password, ...metadata }))
       .then(() => getters.authDB.signUp(email, password, { metadata }))
       .then(() => dispatch('login', { email, password }))
-      .catch(error => (error.status === 409)
-        ? Promise.reject('The email is already in use by some user')
-        : Promise.reject(error.reason)
-      )
+      .catch(error => {
+        (error.status === 409)
+          ? commit('setMessage', 'The email is already in use by some user')
+          : commit('setMessage', error.reason)
+      })
   },
   login: ({ state, commit, dispatch, getters }, { email, password }) => {
     if (email === '' || password === '') {
@@ -55,10 +57,8 @@ const actions = {
       .then((session) => {
         commit('setAuthenticated', true)
         return dispatch('init')
-      }).then(() => {
-        return dispatch('readWorkspacesPreviews')
       })
-      .catch(error => Promise.reject(error.reason))
+      .catch(error => { commit('setMessage', error.reason) })
   },
   logOut: ({ state, commit, getters }) => {
     commit('setAuthenticated', false)

@@ -18,7 +18,7 @@ app.post('/create', ({ body }, res) => {
   const newDB = new PouchDB(`${dbhost}/${body._id}`)
   promisifyValidator(validateWorkspace, body)
     .then(() => workspaceNotExist(dbhost, body._id))
-    .then(() => newDB.put({ type: 'workspace_info', ...body }))
+    .then(() => newDB.put({ type: 'workspace', ...body }))
     .then(() => {
       let userAdditions = []
       body.users.forEach((user) => {

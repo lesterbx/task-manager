@@ -18,7 +18,7 @@
           </div>
         </div>
         
-        <md-chips :md-check-duplicated="false" md-input-type="email" v-model="workspace.users" md-placeholder="User emails..."></md-chips>
+        <md-chips :md-check-duplicated="false" md-input-type="email" v-model="workspace.users" md-placeholder="User emails, enter and press enter"></md-chips>
         
         <md-field>
           <label>Description</label>
@@ -36,6 +36,7 @@ import PictureInput from 'vue-picture-input'
 import slugify from 'slugify'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
 export default {
+  name: 'create-workspace',
   components: { PictureInput },
   data () {
     return {
@@ -52,10 +53,10 @@ export default {
     ...mapGetters({dialog: 'getDialog'}),
     showDialog: {
       get () {
-        return this.dialog === 'create_workspace'
+        return this.dialog === 'create-workspace'
       },
       set (show) {
-        this.setDialog(show ? 'create_workspace' : null)
+        this.setDialog(show ? 'create-workspace' : null)
       }
     }
   },
@@ -65,7 +66,6 @@ export default {
     create () {
       this.createWorkspace({workspace: this.workspace, password: this.password})
         .then(() => this.setDialog(null))
-        .catch(this.setMessage)
     },
     setID () {
       this.workspace._id = slugify(this.workspace.title, {lower: true})

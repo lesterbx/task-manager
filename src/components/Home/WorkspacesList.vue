@@ -1,18 +1,20 @@
 <template>
   <div class="workspaces-list">
-    <md-empty-state v-if="workspaces && workspaces.length == 0" class="new-project" md-icon="devices_other" md-label="Create your first Workspace" md-description="Create your first workspace and start collaborating with your team.">
-      <md-button @click="setDialog('create_workspace')" class="md-accent md-raised">Create Workspace</md-button>
-    </md-empty-state>
-    <div v-else class="no-padding">
-      <workspace-card v-for="workspace in workspaces" :key="workspace._id" :workspace="workspace"></workspace-card>
+    <div class="workspaces-cards">
+      <h3 class="no-margin">Workspaces</h3>
+      <div class="padding-top">
+        <workspace-card v-for="workspace in workspaces" :key="workspace._id" :workspace="workspace"></workspace-card>
+        <create-workspace-card v-if="workspaces && workspaces.length == 0"></create-workspace-card>
+      </div>
     </div>
   </div>
 </template>
 <script>
 import WorkspaceCard from './WorkspaceCard'
+import CreateWorkspaceCard from './CreateWorkspaceCard'
 import { mapMutations } from 'vuex'
 export default {
-  components: { WorkspaceCard },
+  components: { WorkspaceCard, CreateWorkspaceCard },
   props: ['workspaces'],
   methods: {
     ...mapMutations(['setDialog'])
@@ -21,8 +23,12 @@ export default {
 </script>
 <style lang="scss">
 .workspaces-list{
+  width: 100%;
+  min-height: calc(100vh - 64px);
+}
+.workspaces-cards{
   margin: auto;
-  max-width: 500px;
+  width: 100%;
   padding: 1em;
 }
 .new-project .md-icon{
@@ -30,5 +36,15 @@ export default {
 }
 .md-card + .mad-card{
   margin-top: 1em;
+}
+@media screen and (min-width: 648px){
+  .workspaces-cards{
+    width: 75%;
+  }
+}
+@media screen and (min-width: 1024px){
+  .workspaces-cards{
+    width: 50%;
+  }
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
   <div>
     <welcome v-if="!authenticated"></welcome>
-    <workspaces-list v-else :workspaces="workspacesPreviews"></workspaces-list>
+    <workspaces-list v-else :workspaces="workspaces"></workspaces-list>
   </div>
 </template>
 <script>
@@ -15,16 +15,10 @@ export default {
     }
   },
   computed: {
-    ...mapGetters({authenticated: 'getAuthenticated', workspacesPreviews: 'getWorkspacesPreviews'})
+    ...mapGetters({authenticated: 'getAuthenticated', workspaces: 'getWorkspaces'})
   },
   methods: {
-    ...mapActions(['readWorkspacesPreviews'])
-  },
-  mounted () {
-    if (this.authenticated) {
-      this.loading = true
-      this.readWorkspacesPreviews().then(() => { this.loading = false })
-    }
+    ...mapActions(['readWorkspaces'])
   }
 }
 </script>

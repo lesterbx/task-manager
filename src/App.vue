@@ -6,12 +6,14 @@
       </md-app-toolbar>
       <md-app-content>
         <div class="content">
+          <spinner v-if="loading"></spinner>
           <router-view v-if="!loading"></router-view>
+          <login></login>
+          <signup></signup>
+          <create-workspace></create-workspace>
+          <create-board></create-board>
         </div>
         <app-footer></app-footer>
-        <login></login>
-        <signup></signup>
-        <create-workspace></create-workspace>
         <md-snackbar md-position="center" :md-active.sync="showMessage" :md-duration="20000">
           <span class="full-width text-center">{{message}}</span>
           <md-button class="md-accent" @click="showMessage = false">OK</md-button>
@@ -25,19 +27,18 @@
 </template>
 <script>
 import { mapGetters, mapMutations, mapActions } from 'vuex'
-import { Login, Signup, CreateWorkspace } from '@/components/Dialogs'
-import { AppDrawer, AppToolbar, AppFooter } from '@/components/Common'
+import { Login, Signup, CreateWorkspace, CreateBoard } from '@/components/Dialogs'
+import { AppDrawer, AppToolbar, AppFooter, Spinner } from '@/components/Common'
 export default {
   name: 'app',
-  components: { Login, Signup, CreateWorkspace, AppDrawer, AppToolbar, AppFooter },
+  components: { Login, Signup, CreateWorkspace, AppDrawer, AppToolbar, AppFooter, Spinner, CreateBoard },
   data () {
     return {
-      showMenu: false,
-      loading: true
+      showMenu: false
     }
   },
   computed: {
-    ...mapGetters({dialog: 'getDialog', message: 'getMessage'}),
+    ...mapGetters({dialog: 'getDialog', message: 'getMessage', authenticated: 'getAuthenticated', loading: 'getLoading'}),
     showMessage: {
       get () {
         return this.message !== ''
@@ -53,8 +54,17 @@ export default {
   },
   created () {
     this.init().then(() => {
-      this.loading = false
+      if (!this.authenticated && this.$router.currentRoute.path !== '/') {
+        this.$router.replace('/')
+      }
     })
+  },
+  beforeRouteUpdate (to, from, next) {
+    if (!this.authenticated && to.name !== 'Home') {
+      next('/')
+    } else {
+      next()
+    }
   }
 }
 </script>

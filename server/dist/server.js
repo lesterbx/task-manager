@@ -74,7 +74,7 @@ app.post('/create', function (_ref, res) {
   promisifyValidator(validateWorkspace, body).then(function () {
     return workspaceNotExist(dbhost, body._id);
   }).then(function () {
-    return newDB.put(_extends({ type: 'workspace_info' }, body));
+    return newDB.put(_extends({ type: 'workspace' }, body));
   }).then(function () {
     var userAdditions = [];
     body.users.forEach(function (user) {

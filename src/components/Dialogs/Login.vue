@@ -23,6 +23,7 @@
 <script>
 import { mapActions, mapGetters, mapMutations } from 'vuex'
 export default {
+  name: 'login',
   data () {
     return {
       email: '',
@@ -46,7 +47,6 @@ export default {
     log () {
       this.login({ email: this.email, password: this.password })
         .then(() => this.setDialog(null))
-        .catch((error) => this.setMessage(error))
     }
   }
 }

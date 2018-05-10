@@ -1,27 +1,35 @@
 import axios from 'axios'
+import Vue from 'vue'
+import slugify from 'slugify'
 import { promisifyValidator, workspaceNotExist } from '../utils'
 import { validateWorkspace } from '../utils/validators'
 
 const state = {
-  workspacesPreviews: []
+  workspaces: {},
+  boards: {}
 }
 
 const getters = {
-  getWorkspacesPreviews: state => state.workspacesPreviews
+  getWorkspaces: state => state.workspaces,
+  getWorkspace: state => workspaceID => state.workspaces[workspaceID],
+  getBoards: state => state.boards
 }
 
 const mutations = {
-  setWorkspacesPreviews: (state, previews) => { state.workspacesPreviews = previews }
+  setWorkspaces: (state, workspaces) => { state.workspaces = workspaces },
+  setWorkspace: (state, workspace) => { Vue.set(state.workspaces, workspace._id, workspace) },
+  removeWorkspace: (state, workspaceID) => { Vue.delete(state.workspaces, workspaceID) },
+  setBoard: (state, board) => { Vue.set(state.boards, board._id, board) },
+  removeBoard: (state, boardID) => { Vue.delete(state.boards, boardID) }
 }
 
 const actions = {
   createWorkspace: ({ dispatch, getters }, { workspace, password }) => {
-    workspace = { ...workspace, users: [...workspace.users, getters.getUser.email] }
+    workspace = { ...workspace, users: [...workspace.users, getters.getUser.email], boards: [] }
     return promisifyValidator(validateWorkspace, workspace)
       .then(() => workspaceNotExist(getters.couchURL, workspace._id))
       .then(() => axios.post(getters.serverURL + '/create', workspace))
       .then(() => dispatch('init'))
-      .then(() => dispatch('readWorkspacesPreviews'))
       .catch((error) => {
         if (error.response) {
           return Promise.reject(error.response.data.reason)
@@ -30,20 +38,29 @@ const actions = {
         }
       })
   },
-  readWorkspacesPreviews: ({ getters, commit, dispatch }) => {
-    return new Promise((resolve) => {
-      let previews = []
-      getters.getUser.workspaces.forEach((workspaceID) => {
-        previews.push(dispatch('readWorkspacePreview', workspaceID))
-      })
-      Promise.all(previews).then((workspacesPreviews) => {
-        commit('setWorkspacesPreviews', workspacesPreviews)
-        resolve()
-      })
+  createBoard: ({ getters, commit, dispatch }, { workspaceID, title }) => {
+    let boardID = `board-${slugify(title)}-${Date.now()}`
+    getters.workspacesDBs[workspaceID].put({
+      _id: boardID,
+      title
+    }).then(() => {
+      getters.workspacesDBs[workspaceID].get(workspaceID)
+        .then((workspaceDoc) => {
+          getters.workspacesDBs[workspaceID]
+            .put({ ...workspaceDoc, boards: [...workspaceDoc.boards, boardID] })
+            .then(() => dispatch('bindBoards', workspaceID))
+        })
     })
   },
-  readWorkspacePreview: ({ getters }, workspaceID) => {
-    return getters.workspacesDBs[workspaceID].get(workspaceID)
+  readWorkspace: ({ getters, dispatch, commit }, workspaceID) => {
+    return getters.workspaceDB(workspaceID).get(workspaceID)
+      .then((workspace) => {
+        commit('setWorkspace', workspace)
+        return Promise.resolve()
+      })
+  },
+  workspaceChange: ({ state, commit, dispatch }, change) => {
+
   }
 }
 

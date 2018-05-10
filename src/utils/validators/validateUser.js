@@ -6,8 +6,8 @@ export default function (newDoc, savedDoc) {
         throw({forbidden: message})
       }
     }
-    required('first_name', 'Missing first name')
-    required('last_name', 'Missing last name')
+    required('firstName', 'Missing first name')
+    required('lastName', 'Missing last name')
     required('name', 'Missing email')
     required('workspaces', 'Missing workspaces')
     var emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
@@ -18,7 +18,7 @@ export default function (newDoc, savedDoc) {
       }
     }
     valid('name', emailRegex, 'Invalid email format')
-    valid('first_name', nameRegex, 'First name can only contain letters')
-    valid('last_name', nameRegex, 'Last name can only contain letters') 
+    valid('firstName', nameRegex, 'First name can only contain letters')
+    valid('lastName', nameRegex, 'Last name can only contain letters') 
   }
 }

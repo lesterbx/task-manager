@@ -8,7 +8,7 @@
   padding-top: 1em;
 }
 .padding-bottom{
-  padding-bottom: 1em;
+  padding-bottom: 1em!important;
 }
 .padding-left{
   padding-left: 1em;
@@ -39,4 +39,17 @@
 }
 .text-center{
   text-align: center;
+}
+.float-right{
+  float: right;
+}
+.flex-column{
+  display: flex;
+  flex-direction: column;
+}
+.space-between{
+  justify-content: space-between
+}
+.border{
+  border: 1px solid #eaeaea;
 }

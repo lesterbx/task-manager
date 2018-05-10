@@ -8,3 +8,9 @@
     </div>
   </md-toolbar>
 </template>
+<style scoped>
+.md-toolbar{
+  background-color: #eee;
+}
+</style>
+

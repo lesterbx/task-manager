@@ -1,5 +1,5 @@
 <template>
-  <div class="welcome padding-top">
+  <div class="welcome padding">
     <div class="home-badge big-badge">
       <img src="/static/img/presentation.svg" class="animated fadeIn">
       <div class="animated fadeInUp">
@@ -45,9 +45,9 @@ export default {
   display: flex;
   flex-direction: column;
   font-size: 1.3em;
-  padding: 1em;
   padding-top: 3em;
   min-height: calc(100vh - 64px);
+  background-color: #fff;
 }
 .home-badge{
   text-align: center;
@@ -89,7 +89,6 @@ export default {
 }
 @media screen and (min-width: 600px){
   .welcome{
-    padding-top: 0;
     display: grid;
     grid-template-columns: 50% 50%;
     grid-template-rows: 50% 50%;

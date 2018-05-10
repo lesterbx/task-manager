@@ -7,33 +7,51 @@ PouchDB.plugin(PouchAuth)
 PouchDB.plugin(CryptoPouch)
 const state = {
   authDB: new PouchDB(URL(db) + '/_users'),
-  workspacesDBs: {}
+  workspacesDBs: {},
+  syncHandlers: {}
 }
 
 const getters = {
   authDB: (state) => state.authDB,
-  workspacesDBs: (state) => state.workspacesDBs
+  workspaceDB: (state) => (workspaceID) => state.workspacesDBs[workspaceID],
+  workspacesDBs: (state) => state.workspacesDBs,
+  syncHandler: (state) => (workspaceID) => state.syncHandler[workspaceID]
 }
 
 const mutations = {
   setUserDB: (state, userDB) => { state.userDB = userDB },
-  addWorkspaceDB: (state, { id, db }) => { state.workspacesDBs[id] = db }
+  addWorkspaceDB: (state, { id, db }) => { state.workspacesDBs[id] = db },
+  setSyncHandler: (state, { workspaceID, handler }) => { state.syncHandlers[workspaceID] = handler },
+  removeSyncHandler: (state, workspaceID) => { delete state.syncHandlers[workspaceID] }
 }
 
 const actions = {
-  initWorkspacesDBs: ({ dispatch, getters }, { workspaces, sync }) => {
-    workspaces.forEach((workspaceID) => dispatch('initWorkspaceDB', { workspaceID, sync }))
+  initWorkspacesDBs: ({ commit, dispatch }, { workspaces, sync }) => {
+    Promise.all(workspaces.map((workspaceID) => {
+      commit('addWorkspaceDB', { id: workspaceID, db: new PouchDB(workspaceID) })
+      return dispatch('readWorkspace', workspaceID)
+    }))
   },
-  initWorkspaceDB: ({ dispatch, commit, getters }, { workspaceID, sync }) => {
-    let localDB = new PouchDB(workspaceID)
-    commit('addWorkspaceDB', { id: workspaceID, db: localDB })
-    if (sync) {
-      dispatch('syncWorkspaceDB', { localDB, workspaceID })
-    }
+  syncWorkspaceDB: ({ getters, commit, dispatch }, workspaceID) => {
+    console.log(getters.couchURL)
+    commit('setLoading', true)
+    const remote = `${getters.couchURL}/${workspaceID}`
+    const opts = { live: true, retry: true }
+    getters.workspaceDB(workspaceID).replicate.from(remote).on('complete', (info) => {
+      commit('setSyncHandler', db.sync(remote, opts)
+        .on('change', (change) => dispatch('workspaceChange', change))
+        .on('error', (error) => commit('setMessage', error))
+      )
+      console.log(info)
+      commit('setLoading', false)
+    }).on('error', (error) => {
+      console.log(error)
+      commit('setMessage', error)
+    })
   },
-  syncWorkspaceDB: ({getters}, { localDB, workspaceID }) => {
-    const remoteDB = new PouchDB(`${getters.couchURL}/${workspaceID}`)
-    localDB.sync(remoteDB, { live: true })
+  unsyncWorkspaceDB: ({ getters, commit }, workspaceID) => {
+    getters.syncHandler(workspaceID).cancel()
+    commit('removeSyncHandler', workspaceID)
   }
 }
 

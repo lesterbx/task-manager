@@ -6,13 +6,13 @@
           <div class="md-layout-item">
             <md-field>
               <label>First Name</label>
-              <md-input required v-model="account.first_name" autocomplete="off"></md-input>
+              <md-input required v-model="account.firstName" autocomplete="off"></md-input>
             </md-field>
           </div>
           <div class="md-layout-item">
             <md-field>
               <label>Last Name</label>
-              <md-input required v-model="account.last_name" autocomplete="off"></md-input>
+              <md-input required v-model="account.lastName" autocomplete="off"></md-input>
             </md-field>
           </div>
         </div>
@@ -36,11 +36,12 @@
 <script>
 import { mapActions, mapGetters, mapMutations } from 'vuex'
 export default {
+  name: 'signup',
   data () {
     return {
       account: {
-        first_name: '',
-        last_name: '',
+        firstName: '',
+        lastName: '',
         email: '',
         password: ''
       }
@@ -66,7 +67,6 @@ export default {
           this.setMessage('Account created succesfully')
           this.setDialog(null)
         })
-        .catch(this.setMessage)
     }
   }
 }

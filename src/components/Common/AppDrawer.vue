@@ -3,11 +3,9 @@
     <div>
       <md-toolbar md-elevation="0" class="md-primary ">
           <md-button @click="$emit('close')" class="md-icon-button">
-            <transition name="rotate" enter-active-class="rotate" leave-active-class="rotate">
-              <md-icon class="animated rotateIn ">close</md-icon>
-            </transition>
+            <md-icon class="animated rotateIn">close</md-icon>
           </md-button>
-          <h2>Task Manager</h2>
+          <h2 @click="goHome" class="drawer-title">Task Manager</h2>
       </md-toolbar>
       <div v-if="authenticated && user">
         <md-toolbar md-elevation="0" class="md-medium padding-left">
@@ -20,15 +18,17 @@
           </div>
         </md-toolbar>
         <md-list class="no-padding">
-          <md-list-item v-for="workspace in workspaces" :key="workspace._id" @click="$router.push('workspaces/'+workspace._id)">
-            <md-avatar>
+          <md-list-item v-for="workspace in workspaces" :key="workspace._id" @click="openWorkspace(workspace._id)">
+            <md-avatar class="border">
               <img :src="workspace.picture" alt="Workspace Picture">
             </md-avatar>
             <span class="md-list-item-text">{{workspace.title}}</span>
           </md-list-item>
           <md-divider></md-divider>
           <md-list-item @click="createWorkspace">
-            <md-icon>add_circle_outline</md-icon>
+            <md-avatar class="md-avatar-icon md-accent">
+              <md-icon>add</md-icon>
+            </md-avatar>
             <span class="md-list-item-text">Create Workspace</span>
           </md-list-item>
         </md-list>
@@ -56,25 +56,33 @@
 import { mapGetters, mapMutations, mapActions } from 'vuex'
 export default {
   computed: {
-    ...mapGetters({authenticated: 'getAuthenticated', user: 'getUser', workspaces: 'getWorkspacesPreviews'}),
+    ...mapGetters({authenticated: 'getAuthenticated', user: 'getUser', workspaces: 'getWorkspaces'}),
     name () {
-      return this.user && this.user.first_name + ' ' + this.user.last_name
+      return this.user && this.user.firstName + ' ' + this.user.lastName
     }
   },
   methods: {
     ...mapMutations(['setDialog']),
     ...mapActions(['logOut']),
+    goHome () {
+      this.$emit('close')
+      this.$router.push('/')
+    },
     login () {
       this.$emit('close')
       this.setDialog('login')
+    },
+    openWorkspace (workspaceID) {
+      this.$emit('close')
+      this.$router.push('/workspace/' + workspaceID)
     },
     createWorkspace () {
       this.$emit('close')
       this.setDialog('create_workspace')
     },
     logout () {
-      this.$emit('close')
       this.logOut()
+      this.goHome()
     }
   }
 }
@@ -85,6 +93,9 @@ export default {
   flex-direction: column;
   justify-content: space-between;
   height: calc(100vh);
+}
+.drawer-title{
+  cursor: pointer;
 }
 .md-toolbar-row{
   min-height: 64px;

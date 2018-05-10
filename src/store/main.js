@@ -7,7 +7,8 @@ const state = {
   serverURL: URL(server),
   workspaces: {},
   dialog: null,
-  message: ''
+  message: '',
+  loading: false
 }
 
 const getters = {
@@ -15,18 +16,21 @@ const getters = {
   getDialog: (state) => state.dialog,
   getMessage: (state) => state.message,
   couchURL: (state) => state.couchURL,
-  serverURL: (state) => state.serverURL
+  serverURL: (state) => state.serverURL,
+  getLoading: (state) => state.loading
 }
 
 const mutations = {
   setOnline: (state, online) => { state.online = online },
   initialize: (state) => { state.initialized = true },
   setDialog: (state, dialog) => { state.dialog = dialog },
-  setMessage: (state, message) => { state.message = message }
+  setMessage: (state, message) => { state.message = message },
+  setLoading: (state, loading) => { state.loading = loading }
 }
 
 const actions = {
   init: ({ dispatch, commit }) => {
+    commit('setLoading', true)
     dispatch('setConnectionListeners')
     if (navigator.onLine) {
       return dispatch('getSession')
@@ -38,9 +42,14 @@ const actions = {
           commit('setUser', user)
           return dispatch('storeUser', user)
         })
-        .then(({ workspaces }) => dispatch('initWorkspacesDBs', { workspaces, sync: true }))
+        .then(({ workspaces }) => dispatch('initWorkspacesDBs', { workspaces }))
+        .then(() => {
+          commit('setLoading', false)
+          return Promise.resolve()
+        })
         .catch((error) => {
-          console.log('error', error)
+          commit('setLoading', false)
+          console.log('Error: ', error)
           return Promise.resolve()
         })
     } else {
