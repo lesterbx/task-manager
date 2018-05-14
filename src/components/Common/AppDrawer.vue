@@ -19,7 +19,7 @@
         </md-toolbar>
         <md-list class="no-padding">
           <md-list-item v-for="workspace in workspaces" :key="workspace._id" @click="openWorkspace(workspace._id)">
-            <md-avatar class="border">
+            <md-avatar>
               <img :src="workspace.picture" alt="Workspace Picture">
             </md-avatar>
             <span class="md-list-item-text">{{workspace.title}}</span>
@@ -56,7 +56,7 @@
 import { mapGetters, mapMutations, mapActions } from 'vuex'
 export default {
   computed: {
-    ...mapGetters({authenticated: 'getAuthenticated', user: 'getUser', workspaces: 'getWorkspaces'}),
+    ...mapGetters({authenticated: 'getAuthenticated', user: 'getUser', workspaces: 'getWorkspacesPreview'}),
     name () {
       return this.user && this.user.firstName + ' ' + this.user.lastName
     }
@@ -78,7 +78,7 @@ export default {
     },
     createWorkspace () {
       this.$emit('close')
-      this.setDialog('create_workspace')
+      this.setDialog('create-workspace')
     },
     logout () {
       this.logOut()

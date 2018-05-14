@@ -19,7 +19,7 @@ const mutations = {
 
 const actions = {
   getSession: ({ commit, dispatch, getters }) => {
-    return getters.authDB.getSession()
+    return getters.getAuthDB.getSession()
       .then(({ userCtx }) => {
         if (userCtx.name !== null) {
           return Promise.resolve(userCtx.name)
@@ -30,7 +30,7 @@ const actions = {
       .catch(() => Promise.reject('No session'))
   },
   fetchUser: ({ state, commit, dispatch, getters }, email) => {
-    return getters.authDB.getUser(email)
+    return getters.getAuthDB.getUser(email)
       .then(({ name, firstName, lastName, workspaces }) => {
         return Promise.resolve({ email: name, firstName, lastName, workspaces })
       })
@@ -40,7 +40,7 @@ const actions = {
     metadata.workspaces = []
     return dispatch('checkConnection')
       .then(() => promisifyValidator(validateUser, { name: email, password, ...metadata }))
-      .then(() => getters.authDB.signUp(email, password, { metadata }))
+      .then(() => getters.getAuthDB.signUp(email, password, { metadata }))
       .then(() => dispatch('login', { email, password }))
       .catch(error => {
         (error.status === 409)
@@ -53,7 +53,7 @@ const actions = {
       return Promise.reject('Enetr your email and password')
     }
     return dispatch('checkConnection')
-      .then(() => getters.authDB.logIn(email, password))
+      .then(() => getters.getAuthDB.logIn(email, password))
       .then((session) => {
         commit('setAuthenticated', true)
         return dispatch('init')
@@ -63,7 +63,7 @@ const actions = {
   logOut: ({ state, commit, getters }) => {
     commit('setAuthenticated', false)
     commit('setUser', null)
-    getters.authDB.logOut()
+    getters.getAuthDB.logOut()
   },
   storeUser: (ctx, user) => {
     window.localStorage.setItem('task-manager-user', JSON.stringify(user))

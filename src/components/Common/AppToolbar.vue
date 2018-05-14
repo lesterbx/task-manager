@@ -22,22 +22,26 @@ export default {
     }
   },
   computed: {
-    ...mapGetters({ workspace: 'getWorkspace' }),
+    ...mapGetters({ workspace: 'getWorkspacePreview', board: 'getBoardPreview', boards: 'getBoardsPreview' }),
     title () {
       if (this.$route.name === 'Home') {
         return 'Task Manager'
       } else if (this.$route.name === 'Workspace') {
-        return this.workspace(this.id) ? this.workspace(this.id).title : 'Task Manager'
+        return this.workspace(this.workspaceID) ? this.workspace(this.workspaceID).title : 'Task Manager'
+      } else if (this.$route.name === 'Board') {
+        return this.board(this.boardID) ? this.board(this.boardID).title : 'Task Manager'
       }
     }
   },
   watch: {
     $route () {
-      this.id = this.$route.params.id
+      this.workspaceID = this.$route.params.workspaceID
+      this.boardID = this.$route.params.boardID
     }
   },
   created () {
-    this.id = this.$route.params.id
+    this.workspaceID = this.$route.params.workspaceID
+    this.boardID = this.$route.params.boardID
   }
 }
 </script>

@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import { Workspace, Board, Home } from '../pages'
-
+import { Workspace, Board, Home, BoardsList } from '../pages'
 Vue.use(Router)
 
 const router = new Router({
@@ -13,14 +12,20 @@ const router = new Router({
       component: Home
     },
     {
-      path: '/workspace/:id',
-      name: 'Workspace',
-      component: Workspace
-    },
-    {
-      path: '/workspace/:id/:board',
-      name: 'Board',
-      component: Board
+      path: '/workspace/:workspaceID',
+      component: Workspace,
+      children: [
+        {
+          path: '',
+          name: 'Workspace',
+          component: BoardsList
+        },
+        {
+          path: ':boardID',
+          name: 'Board',
+          component: Board
+        }
+      ]
     }
   ],
   scrollBehavior: (to, from, savedPosition) => ({ x: 0, y: 0 })

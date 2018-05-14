@@ -4,7 +4,7 @@
       <h3 class="no-margin">Workspaces</h3>
       <div class="padding-top">
         <workspace-card v-for="workspace in workspaces" :key="workspace._id" :workspace="workspace"></workspace-card>
-        <create-workspace-card v-if="workspaces && workspaces.length == 0"></create-workspace-card>
+        <create-workspace-card v-if="workspaces && Object.keys(workspaces).length == 0"></create-workspace-card>
       </div>
     </div>
   </div>

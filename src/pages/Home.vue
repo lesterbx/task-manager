@@ -6,19 +6,11 @@
 </template>
 <script>
 import { Welcome, WorkspacesList } from '@/components/Home'
-import { mapGetters, mapActions } from 'vuex'
+import { mapGetters } from 'vuex'
 export default {
   components: { Welcome, WorkspacesList },
-  data () {
-    return {
-      loading: false
-    }
-  },
   computed: {
-    ...mapGetters({authenticated: 'getAuthenticated', workspaces: 'getWorkspaces'})
-  },
-  methods: {
-    ...mapActions(['readWorkspaces'])
+    ...mapGetters({authenticated: 'getAuthenticated', workspaces: 'getWorkspacesPreview'})
   }
 }
 </script>

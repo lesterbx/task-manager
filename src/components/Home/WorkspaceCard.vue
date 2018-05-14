@@ -11,7 +11,7 @@
             <span class="md-caption last-activity">Last activity from user</span>
           </md-card-header-text>
           <md-card-media :md-medium="true">
-            <div class="workspace-card-picture border" :style="`background-image: url('${workspace.picture}');`"></div>
+            <div class="workspace-card-picture" :style="`background-image: url('${workspace.picture}');`"></div>
           </md-card-media>
         </md-card-header>
       </md-card-area>

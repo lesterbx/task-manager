@@ -8,7 +8,8 @@ const state = {
   workspaces: {},
   dialog: null,
   message: '',
-  loading: false
+  loadingApp: true,
+  loadingWorkspace: true
 }
 
 const getters = {
@@ -17,7 +18,8 @@ const getters = {
   getMessage: (state) => state.message,
   couchURL: (state) => state.couchURL,
   serverURL: (state) => state.serverURL,
-  getLoading: (state) => state.loading
+  getLoadingApp: (state) => state.loadingApp,
+  getLoadingWorkspace: (state) => state.loadingWorkspace
 }
 
 const mutations = {
@@ -25,12 +27,13 @@ const mutations = {
   initialize: (state) => { state.initialized = true },
   setDialog: (state, dialog) => { state.dialog = dialog },
   setMessage: (state, message) => { state.message = message },
-  setLoading: (state, loading) => { state.loading = loading }
+  setLoadingApp: (state, loading) => { state.loadingApp = loading },
+  setLoadingWorkspace: (state, loading) => { state.loadingWorkspace = loading }
 }
 
 const actions = {
   init: ({ dispatch, commit }) => {
-    commit('setLoading', true)
+    commit('setLoadingApp', true)
     dispatch('setConnectionListeners')
     if (navigator.onLine) {
       return dispatch('getSession')
@@ -42,19 +45,29 @@ const actions = {
           commit('setUser', user)
           return dispatch('storeUser', user)
         })
-        .then(({ workspaces }) => dispatch('initWorkspacesDBs', { workspaces }))
+        .then(({ workspaces }) => {
+          return dispatch('initWorkspacesDBs', workspaces)
+        })
+        .then((dbs) => {
+          return dispatch('fetchWorkspacesDBs', dbs)
+        })
         .then(() => {
-          commit('setLoading', false)
+          return dispatch('readWorkspacesPreview')
+        })
+        .then(() => {
+          commit('setLoadingApp', false)
           return Promise.resolve()
         })
         .catch((error) => {
-          commit('setLoading', false)
-          console.log('Error: ', error)
+          commit('setLoadingApp', false)
+          console.log(error)
           return Promise.resolve()
         })
     } else {
       return dispatch('readUser')
-        .then(({ workspaces }) => dispatch('initWorkspacesDBs', false))
+        .then(({ workspaces }) => {
+          return dispatch('initWorkspacesDBs', false)
+        })
         .catch((error) => {
           console.log('error', error)
           return Promise.resolve()
@@ -71,7 +84,8 @@ const actions = {
     })
   },
   checkConnection: ({ state }) => {
-    return state.online ? Promise.resolve() : Promise.reject({ reason: 'Sorry, you need connection for this' })
+    return Promise.resolve()
+    // return state.online ? Promise.resolve() : Promise.reject({ reason: 'Sorry, you need connection for this.' })
   }
 }
 

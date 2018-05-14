@@ -38,7 +38,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters({dialog: 'getDialog', message: 'getMessage', authenticated: 'getAuthenticated', loading: 'getLoading'}),
+    ...mapGetters({dialog: 'getDialog', message: 'getMessage', authenticated: 'getAuthenticated', loading: 'getLoadingApp'}),
     showMessage: {
       get () {
         return this.message !== ''

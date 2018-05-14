@@ -1,15 +1,15 @@
 <template>
-  <md-card md-with-hover>
+  <md-card md-with-hover @click.native="setDialog('create-workspace')">
     <md-ripple>
       <md-card-area>
         <md-card-header>
           <md-card-header-text class="flex-column space-between">
             <div>
               <div class="md-title no-margin">Create Workspace</div>
-              <div class="md-subhead">Create a workspace and start collaborating with your team</div>
-              <div class="text-center full-width">
-                <md-button class="md-raised md-small md-accent" >Create workspace</md-button>
-              </div>
+              <div class="md-subhead">Create a workspace and start collaborating with your team.</div>
+            </div>
+            <div class="full-width text-right padding-right margin-right">
+              <md-button class="md-small md-accent" >Create workspace</md-button>
             </div>
           </md-card-header-text>
           <md-card-media :md-medium="true">
@@ -20,6 +20,14 @@
     </md-ripple>
   </md-card>
 </template>
+<script>
+import { mapMutations } from 'vuex'
+export default {
+  methods: {
+    ...mapMutations(['setDialog'])
+  }
+}
+</script>
 <style scoped>
 .md-card{
   margin-left: 0!important;
