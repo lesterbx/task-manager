@@ -1,4 +1,4 @@
-# task-manager
+# Task Manager
 
 > Example project built using VueJS and CouchDB.
 <p>The project consist on a collaborative task manager based on columns and cards.<br>
