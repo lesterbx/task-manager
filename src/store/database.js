@@ -1,10 +1,15 @@
 import PouchDB from 'pouchdb'
 import PouchAuth from 'pouchdb-authentication'
 import CryptoPouch from 'crypto-pouch'
+import PouchDBFind from 'pouchdb-find'
 import { db } from '../config.js'
 import { URL } from '../utils'
+
 PouchDB.plugin(PouchAuth)
 PouchDB.plugin(CryptoPouch)
+PouchDB.plugin(PouchDBFind)
+// PouchDB.debug.disable()
+
 const state = {
   authDB: new PouchDB(URL(db) + '/_users'),
   workspacesDBs: {},
@@ -15,46 +20,60 @@ const getters = {
   getAuthDB: (state) => state.authDB,
   getWorkspaceDB: (state) => (workspaceID) => state.workspacesDBs[workspaceID],
   getWorkspacesDBs: (state) => state.workspacesDBs,
-  getSyncHandler: (state) => (workspaceID) => state.syncHandlers[workspaceID]
+  getSyncHandler: (state) => (workspaceID) => state.syncHandlers[workspaceID],
+  getCurrentDB: (state, getters) => getters.getWorkspaceDB(getters.getCurrentWorkspace)
 }
 
 const mutations = {
   setUserDB: (state, userDB) => { state.userDB = userDB },
-  addWorkspaceDB: (state, { workspaceID, db }) => { state.workspacesDBs[workspaceID] = db },
+  setWorkspaceDB: (state, { workspaceID, db }) => { state.workspacesDBs[workspaceID] = db },
   setSyncHandler: (state, { workspaceID, handler }) => { state.syncHandlers[workspaceID] = handler },
-  removeSyncHandler: (state, workspaceID) => { delete state.syncHandlers[workspaceID] }
+  removeSyncHandler: (state, workspaceID) => { delete state.syncHandlers[workspaceID] },
+  setCurrentDB: (state, db) => { state.currentDB = db }
 }
 
 const actions = {
-  initWorkspacesDBs: ({ commit }, workspaces) => {
-    return Promise.resolve(workspaces.map((workspaceID) => {
-      const db = new PouchDB(workspaceID)
-      commit('addWorkspaceDB', { workspaceID, db })
-      return db
+  /**
+   * Initializes the workspaces databases
+   */
+  initWorkspacesDBs: ({ commit, getters, dispatch }, workspaces) => {
+    return Promise.all(workspaces.map((workspaceID) => {
+      let db = new PouchDB(workspaceID)
+      commit('setWorkspaceDB', { workspaceID, db })
+      return dispatch('fetchDB', db)
     }))
   },
-  fetchWorkspacesDBs: ({ getters, dispatch }, dbs) => {
-    return Promise.all(dbs.map((db) => db.replicate.from(`${getters.couchURL}/${db.name}`)))
+  /**
+   * Removes the databases from the local storage
+   */
+  removeWorkspacesDBs: ({ getters }) => {
+    return Promise.all(Object.keys(getters.getWorkspacesDBs).map((db) => getters.getWorkspaceDB(db).destroy()))
   },
+  /**
+   * Replicate the remote database in the local database
+   */
+  fetchDB: ({ getters, dispatch }, db) => {
+    return db.replicate.from(`${getters.couchURL}/${db.name}`)
+  },
+  /**
+   * Syncronizes a local database with the remote one, will be executed when a workspace in opened
+   */
   syncWorkspaceDB: ({ getters, commit, dispatch }, workspaceID) => {
-    commit('setLoadingWorkspace', true)
-    const remote = `${getters.couchURL}/${workspaceID}`
-    const opts = { live: true, retry: true }
-    const db = getters.getWorkspaceDB(workspaceID)
     commit('setSyncHandler', {
       workspaceID,
-      handler: db.sync(remote, opts)
+      handler: getters.getWorkspaceDB(workspaceID)
+        .sync(`${getters.couchURL}/${workspaceID}`, { live: true, retry: true })
         .on('change', (change) => dispatch('workspaceChange', change))
         .on('error', (error) => commit('setMessage', error))
     })
-    dispatch('readWorkspaceBoards', workspaceID)
-      .then(() => commit('setLoadingWorkspace', false))
-      .catch(() => commit('setLoadingWorkspace', false))
   },
+  /**
+   * Stops the syncronization with the remote database
+   */
   unsyncWorkspaceDB: ({ state, getters, commit }, workspaceID) => {
     state.syncHandlers[workspaceID].cancel()
     commit('removeSyncHandler', workspaceID)
-    commit('setBoardsPreview', {})
+    commit('setBoards', {})
   }
 }
 

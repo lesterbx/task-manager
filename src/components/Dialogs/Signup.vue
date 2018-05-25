@@ -1,6 +1,6 @@
 <template>
     <md-dialog :md-active.sync="showDialog" :md-fullscreen="false">
-      <form class="padding margin" action="javascript:void(0)">
+      <form class="padding margin" action="javascript:void(0)"  @change="setMessage('')">
         <h3 class="text-center">Create a new account</h3>
         <div class="md-layout md-gutter">
           <div class="md-layout-item">
@@ -66,6 +66,9 @@ export default {
         .then(() => {
           this.setMessage('Account created succesfully')
           this.setDialog(null)
+        })
+        .catch((error) => {
+          this.setMessage(error)
         })
     }
   }

@@ -40,15 +40,12 @@ body {
 }
 
 .md-dialog{
-  overflow: scroll;
   min-width: 90%;
+  border-radius: 0px!important;
+  min-height: fit-content;
 }
 .md-drawer .md-list-item-content{
   padding: 0.5em;
-}
-
-.md-dialog{
-  border-radius: 0px!important;
 }
 
 .md-avatar img{
@@ -57,10 +54,19 @@ body {
   max-width: fit-content;
 }
 
+.md-app-toolbar, .md-toolbar, .md-toolbar-row{
+  min-height: 64px;
+}
+
+.md-menu-content{
+  z-index: 20;
+}
+
+.md-button.md-theme-default{
+  color: #747474;
+}
+
 @media screen and (min-width: 648px){
-  .md-app-toolbar, .md-toolbar, .md-toolbar-row{
-    min-height: 64px;
-  }
   .md-dialog{
     min-width: 75%;
   }

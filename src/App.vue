@@ -8,12 +8,9 @@
         <div class="content">
           <spinner v-if="loading"></spinner>
           <router-view v-if="!loading"></router-view>
-          <login></login>
-          <signup></signup>
-          <create-workspace></create-workspace>
-          <create-board></create-board>
+          <app-dialog v-if="dialog && dialog !== ''"></app-dialog>
         </div>
-        <app-footer></app-footer>
+        <app-footer v-if="$route.name !== 'Board'"></app-footer>
         <md-snackbar md-position="center" :md-active.sync="showMessage" :md-duration="20000">
           <span class="full-width text-center">{{message}}</span>
           <md-button class="md-accent" @click="showMessage = false">OK</md-button>
@@ -27,11 +24,10 @@
 </template>
 <script>
 import { mapGetters, mapMutations, mapActions } from 'vuex'
-import { Login, Signup, CreateWorkspace, CreateBoard } from '@/components/Dialogs'
-import { AppDrawer, AppToolbar, AppFooter, Spinner } from '@/components/Common'
+import { AppDrawer, AppToolbar, AppFooter, AppDialog, Spinner } from '@/components/Common'
 export default {
   name: 'app',
-  components: { Login, Signup, CreateWorkspace, AppDrawer, AppToolbar, AppFooter, Spinner, CreateBoard },
+  components: { AppDrawer, AppToolbar, AppFooter, AppDialog, Spinner },
   data () {
     return {
       showMenu: false

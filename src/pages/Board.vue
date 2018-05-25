@@ -1,49 +1,64 @@
 <template>
-  <div class="padding board">
-    <column v-for="column in board.columns" :key="column._id" :column="column"></column>
-    <add-column @add-column="addColumn"></add-column>
+  <div class="board">
+    <div class="board-content padding">
+      <draggable class="draggable" v-if="sortedColumns.length > 0" :value="sortedColumns" element="div" @change="movedColumn">
+        <transition-group class="board-content" name="list" tag="div">
+          <column v-for="column in sortedColumns" :key="column._id" :column="column"></column>
+        </transition-group>
+      </draggable>
+      <add-column @add-column="addColumn"></add-column>
+    </div>
   </div>
 </template>
 <script>
-import { Column, Card, AddColumn } from '../components/Board'
+import { Column, AddColumn } from '../components/Board'
 import { mapGetters, mapActions, mapMutations } from 'vuex'
+import draggable from 'vuedraggable'
 export default {
-  components: { Column, Card, AddColumn },
+  components: { Column, AddColumn, draggable },
   computed: {
-    ...mapGetters({board: 'getBoard'})
+    ...mapGetters({columns: 'getColumns'}),
+    sortedColumns () {
+      return this.columns && this.columns.length === 1
+        ? this.columns
+        : this.columns.sort((a, b) => a.position - b.position)
+    }
   },
   methods: {
-    ...mapActions(['readBoardColumns', 'createColumn']),
-    ...mapMutations(['setBoard']),
+    ...mapActions(['readColumns', 'createColumn', 'moveColumn']),
+    ...mapMutations(['setCurrentBoard']),
     addColumn (title) {
-      this.createColumn({workspaceID: this.$route.params.workspaceID, boardID: this.$route.params.boardID, title: title})
+      this.createColumn({ boardID: this.$route.params.boardID, title: title })
+    },
+    movedColumn ({moved}) {
+      this.moveColumn({ columnID: moved.element._id, oldPosition: moved.oldIndex, newPosition: moved.newIndex })
     }
   },
   created () {
-    this.readBoardColumns({ workspaceID: this.$route.params.workspaceID, boardID: this.$route.params.boardID })
-  },
-  beforeDestroy () {
-    this.setBoard({ columns: {}, cards: {} })
+    // this.readColumns({ boardID: this.$route.params.boardID })
+    this.setCurrentBoard(this.$route.params.boardID)
   }
 }
 </script>
 <style>
 .board{
-  display: flex;
-  flex-direction: row;
   height: calc(100vh - 64px);
   overflow-x: scroll;
 }
-.add-column-input{
-  min-height: 0;
-  padding-top: 0;
+.board-content{
+  display: flex;
+  flex-direction: row;
+  width: fit-content;
+  height: 100%;
 }
-.column{
-  min-width: 250px;
-  max-height: calc(100vh - 64px - 2em);
+.list-enter-active, .list-leave-active {
+  transition: all 1s;
 }
-.column + .column{
-  margin-left: 1em !important;
+.list-enter, .list-leave-to /* .list-leave-active below version 2.1.8 */ {
+  opacity: 0;
+}
+.list-move {
+  transition: transform 0.2s;
 }
 </style>
 

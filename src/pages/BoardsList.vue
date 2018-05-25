@@ -30,7 +30,7 @@ import { mapGetters, mapMutations } from 'vuex'
 export default {
   name: 'BoardsList',
   computed: {
-    ...mapGetters({boards: 'getBoardsPreview'})
+    ...mapGetters({boards: 'getBoards'})
   },
   methods: {
     ...mapMutations(['setDialog']),

@@ -1,28 +1,34 @@
 <template>
   <div class="md-toolbar-row">
-    <div class="md-toolbar-section-start">
-      <md-button @click="$emit('show-menu')" class="md-icon-button">
+    <div class="md-toolbar-section-start" :class="!authenticated && 'padding-left'">
+      <md-button v-if="authenticated" @click="$emit('show-menu')" class="md-icon-button">
         <md-icon>menu</md-icon>
       </md-button>
       <h2>{{title}}</h2>
     </div>
     <div class="md-toolbar-section-end">
-      <md-button v-if="$route.name === 'Workspace'" class="md-icon-button">
-        <md-icon>info_outline</md-icon>
+      <md-button v-if="$route.name == 'Home' && !authenticated" @click="setDialog('login')" class="margin-right">
+        Sign in
       </md-button>
+      <home-menu v-if="$route.name === 'Home' && authenticated" ></home-menu>
+      <workspace-menu v-if="$route.name === 'Workspace'" ></workspace-menu>
+      <board-menu v-if="$route.name === 'Board'" ></board-menu>
     </div>
   </div>
 </template>
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
+import { WorkspaceMenu, BoardMenu, HomeMenu } from '../Menus'
 export default {
+  components: { WorkspaceMenu, BoardMenu, HomeMenu },
   data () {
     return {
-      id: ''
+      workspaceID: '',
+      boardID: ''
     }
   },
   computed: {
-    ...mapGetters({ workspace: 'getWorkspacePreview', board: 'getBoardPreview', boards: 'getBoardsPreview' }),
+    ...mapGetters({ workspace: 'getWorkspace', board: 'getBoard', boards: 'getBoards', authenticated: 'getAuthenticated' }),
     title () {
       if (this.$route.name === 'Home') {
         return 'Task Manager'
@@ -38,6 +44,9 @@ export default {
       this.workspaceID = this.$route.params.workspaceID
       this.boardID = this.$route.params.boardID
     }
+  },
+  methods: {
+    ...mapMutations(['setDialog'])
   },
   created () {
     this.workspaceID = this.$route.params.workspaceID

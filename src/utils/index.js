@@ -1,5 +1,5 @@
 const axios = require('axios')
-function promisifyValidator (validator, doc) {
+const promisifyValidator = (validator, doc) => {
   return new Promise((resolve, reject) => {
     try {
       validator(doc)
@@ -9,22 +9,26 @@ function promisifyValidator (validator, doc) {
     }
   })
 }
-function workspaceNotExist (dbhost, id) {
+const workspaceNotExist = (dbhost, id) => {
   return new Promise((resolve, reject) => {
     axios.get(`${dbhost}/${id}`)
       .then(() => reject({ reason: 'The workspace ID is already taken' }))
       .catch(({ response }) => response.data.error === 'not_found' ? resolve() : reject(response.data.error))
   })
 }
-function URL (config) {
+const URL = (config) => {
   return `${config.protocol}://${config.host}:${config.port}`
 }
-function arr2obj (array) {
-  console.log(array)
+const arr2obj = (array) => {
   return array.reduce((acc, el) => ({...acc, [el._id]: el}), {})
+}
+
+const removeFromArray = (arr, element) => {
+  return arr.slice(0, arr.indexOf(element)).concat(arr.slice(arr.indexOf(element) + 1, arr.length))
 }
 
 export { promisifyValidator }
 export { workspaceNotExist }
 export { URL }
 export { arr2obj }
+export { removeFromArray }

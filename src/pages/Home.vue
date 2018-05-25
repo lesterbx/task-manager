@@ -10,7 +10,7 @@ import { mapGetters } from 'vuex'
 export default {
   components: { Welcome, WorkspacesList },
   computed: {
-    ...mapGetters({authenticated: 'getAuthenticated', workspaces: 'getWorkspacesPreview'})
+    ...mapGetters({authenticated: 'getAuthenticated', workspaces: 'getWorkspaces'})
   }
 }
 </script>

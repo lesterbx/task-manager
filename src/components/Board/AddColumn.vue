@@ -1,5 +1,5 @@
 <template>
-  <div class="column margin-right animated fadeIn">
+  <div class="add-column">
     <md-card v-if="!adding"  class="no-margin text-center padding">
       <md-button class="md-primary full-width no-margin" @click="adding = true">Add column</md-button>
     </md-card>
@@ -36,4 +36,16 @@ export default {
   }
 }
 </script>
+<style>
+.add-column .md-card{
+  min-width: 250px;
+}
+.draggable + .add-column{
+  margin-left: 1em !important;
+}
+.add-column-input{
+  min-height: 0;
+  padding-top: 0;
+}
+</style>
 

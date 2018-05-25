@@ -1,5 +1,6 @@
 <template>
-  <md-dialog-prompt :md-active.sync='showDialog' v-model='title'
+  <md-dialog-prompt :md-active.sync='showDialog' 
+      v-model='title'
       md-title='Create Board'
       md-input-placeholder='Board Title'
       @md-confirm='create' />

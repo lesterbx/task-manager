@@ -32,48 +32,52 @@ const mutations = {
 }
 
 const actions = {
+  /**
+   * Initializes the application
+   */
   init: ({ dispatch, commit }) => {
     commit('setLoadingApp', true)
     dispatch('setConnectionListeners')
-    if (navigator.onLine) {
-      return dispatch('getSession')
-        .then((email) => {
-          commit('setAuthenticated', true)
-          return dispatch('fetchUser', email)
-        })
-        .then((user) => {
-          commit('setUser', user)
-          return dispatch('storeUser', user)
-        })
-        .then(({ workspaces }) => {
-          return dispatch('initWorkspacesDBs', workspaces)
-        })
-        .then((dbs) => {
-          return dispatch('fetchWorkspacesDBs', dbs)
-        })
-        .then(() => {
-          return dispatch('readWorkspacesPreview')
-        })
-        .then(() => {
-          commit('setLoadingApp', false)
-          return Promise.resolve()
-        })
-        .catch((error) => {
-          commit('setLoadingApp', false)
-          console.log(error)
-          return Promise.resolve()
-        })
-    } else {
-      return dispatch('readUser')
-        .then(({ workspaces }) => {
-          return dispatch('initWorkspacesDBs', false)
-        })
-        .catch((error) => {
-          console.log('error', error)
-          return Promise.resolve()
-        })
-    }
+    return (navigator.onLine)
+      ? dispatch('initOnline')
+      : dispatch('initOffline')
   },
+  /**
+   * Initializes the application when online
+   */
+  initOnline: ({ dispatch, commit }) => {
+    return dispatch('getSession')
+      .then((email) => dispatch('fetchUser', email))
+      .then(({ workspaces }) => {
+        commit('setAuthenticated', true)
+        return dispatch('initWorkspacesDBs', workspaces)
+      })
+      .then(() => dispatch('readWorkspacesPreview'))
+      .then(() => {
+        commit('setLoadingApp', false)
+        return Promise.resolve()
+      })
+      .catch(() => {
+        commit('setLoadingApp', false)
+        return Promise.resolve()
+      })
+  },
+  /**
+   * Initializes the application when offline
+   */
+  initOffline: ({ dispatch }) => {
+    return dispatch('readUser')
+      .then(({ workspaces }) => {
+        return dispatch('initWorkspacesDBs', false)
+      })
+      .catch((error) => {
+        console.log('error', error)
+        return Promise.resolve()
+      })
+  },
+  /**
+   * Sets the connection listeners
+   */
   setConnectionListeners: ({ commit }) => {
     commit('setOnline', navigator.onLine)
     window.addEventListener('online', () => {
@@ -83,9 +87,13 @@ const actions = {
       commit('setOnline', navigator.onLine)
     })
   },
+  /**
+   * Checks if there is connection
+   */
   checkConnection: ({ state }) => {
-    return Promise.resolve()
-    // return state.online ? Promise.resolve() : Promise.reject({ reason: 'Sorry, you need connection for this.' })
+    return state.online
+      ? Promise.resolve()
+      : Promise.reject({ reason: 'No connection' })
   }
 }
 

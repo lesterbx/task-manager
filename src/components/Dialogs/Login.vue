@@ -1,6 +1,6 @@
 <template>
   <md-dialog :md-active.sync='showDialog' :md-fullscreen='false'>
-    <form class='padding margin' action='javascript:void(0)'>
+    <form class='padding margin' action='javascript:void(0)' @change="setMessage('')">
       <h3 class='text-center'>Login with your account</h3>
       <md-field>
         <label>Email</label>
@@ -45,8 +45,13 @@ export default {
     ...mapMutations(['setDialog', 'setMessage']),
     ...mapActions(['login']),
     log () {
-      this.login({ email: this.email, password: this.password })
-        .then(() => this.setDialog(null))
+      if (this.email === '' || this.password === '') {
+        this.setMessage('Enter your email and password')
+      } else {
+        this.login({ email: this.email, password: this.password })
+          .then(() => this.setDialog(null))
+          .catch((error) => this.setMessage(error))
+      }
     }
   }
 }

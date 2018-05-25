@@ -33,14 +33,6 @@
           </md-list-item>
         </md-list>
       </div>
-      <div v-else>
-        <md-list class="no-padding">
-          <md-list-item @click="login()">
-            <md-icon>account_circle</md-icon>
-            <span class="md-list-item-text">Log in</span>
-          </md-list-item>
-        </md-list>
-      </div>
     </div>
     <div>
       <md-list class="no-padding" v-if="authenticated && user">
@@ -56,7 +48,7 @@
 import { mapGetters, mapMutations, mapActions } from 'vuex'
 export default {
   computed: {
-    ...mapGetters({authenticated: 'getAuthenticated', user: 'getUser', workspaces: 'getWorkspacesPreview'}),
+    ...mapGetters({authenticated: 'getAuthenticated', user: 'getUser', workspaces: 'getWorkspaces'}),
     name () {
       return this.user && this.user.firstName + ' ' + this.user.lastName
     }
@@ -67,10 +59,6 @@ export default {
     goHome () {
       this.$emit('close')
       this.$router.push('/')
-    },
-    login () {
-      this.$emit('close')
-      this.setDialog('login')
     },
     openWorkspace (workspaceID) {
       this.$emit('close')

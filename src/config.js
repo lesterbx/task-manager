@@ -3,10 +3,6 @@ const db = {
   host: 'localhost',
   port: 5984
 }
-const dbAdmin = {
-  user: 'lester',
-  password: 'mono12'
-}
 const server = {
   protocol: 'http',
   host: 'localhost',
@@ -14,5 +10,4 @@ const server = {
 }
 
 export { db }
-export { dbAdmin }
 export { server }
