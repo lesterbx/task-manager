@@ -2,7 +2,7 @@
 
 > Example project built using VueJS and CouchDB.
 <p>The project consist on a collaborative task manager based on columns and cards.<br>
-The users can create workspaces and ivite users to work with them, each workspace is a database and can be stored in the user's device to work offline.<br>
+The users can create workspaces and invite users to work with them, each workspace is a database and can be stored in the user's device to work offline.<br>
 For some specials actions a node server is used.</p>
 
 ## Build Setup
