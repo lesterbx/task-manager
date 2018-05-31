@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import slugify from 'slugify'
 import uuid from 'uuid/v1'
-import { removeFromArray } from '../utils'
 import values from 'object.values'
+import { updateDocsPositions } from '../utils'
 
 const state = {
   boards: {},
@@ -14,20 +14,20 @@ const state = {
 const getters = {
   getBoards: (state) => state.boards,
   getBoard: (state) => (boardID) => state.boards[boardID],
-  getColumns: (state) => state.currentBoard && state.boards && state.columns && state.boards[state.currentBoard] && values(state.columns).filter((column) => state.boards[state.currentBoard].columns.includes(column._id)),
+  getColumns: (state) => state.columns,
   getColumn: (state) => (columnID) => state.columns[columnID],
-  getColumnNotes: (state) => (columnID) => values(state.notes).filter((note) => state.columns[columnID].notes.includes(note._id))
+  getColumnNotes: (state) => (columnID) => values(state.notes).filter((note) => note.columnID === columnID),
+  getCurrentBoard: (state) => state.currentBoard
 }
 
 const mutations = {
   setCurrentBoard: (state, board) => { Vue.set(state, 'currentBoard', board) },
   setBoards: (state, boards) => { Vue.set(state, 'boards', boards) },
   setBoard: (state, board) => { Vue.set(state.boards, board._id, board) },
-  removeBoard: (state, boardID) => { Vue.delete(state.boards, boardID) },
   setColumn: (state, column) => { Vue.set(state.columns, column._id, column) },
-  removeColumn: (state, columnID) => { Vue.delete(state.columns, columnID) },
   setNote: (state, note) => { Vue.set(state.notes, note._id, note) },
-  removeNote: (state, noteID) => { Vue.delete(state.notes, noteID) }
+  setColumns: (state, columns) => { state.columns = columns },
+  setNotes: (state, notes) => { state.notes = notes }
 }
 
 const actions = {
@@ -42,6 +42,18 @@ const actions = {
       timestamp: Date.now()
     })
   },
+  renameBoard: ({ getters }, title) => {
+    let db = getters.getCurrentDB
+    return db.get(getters.getCurrentBoard)
+      .then((boardDoc) => db.put({ ...boardDoc, title: title }))
+  },
+  deleteBoard: ({ getters }) => {
+    let db = getters.getCurrentDB
+    return db.get(getters.getCurrentBoard)
+      .then((boardDoc) => db.remove(boardDoc))
+      .then(() => getters.getCurrentDB.query('workspace/boardContent', { include_docs: true, key: getters.getCurrentBoard }))
+      .then(({ rows }) => Promise.all(rows.map(({ doc }) => db.remove(doc))))
+  },
   /**
    * Create a new column
    */
@@ -50,6 +62,7 @@ const actions = {
       _id: `column-${uuid()}`,
       type: 'column',
       title,
+      boardID,
       position: Object.keys(getters.getColumns).length,
       timestamp: Date.now()
     })
@@ -57,70 +70,61 @@ const actions = {
   /**
    * Create a new note
    */
-  createNote: ({ getters, dispatch }, { columnID, text }) => {
+  createNote: ({ getters, dispatch }, { boardID, columnID, text }) => {
+    let noteID = `note-${uuid()}`
     return getters.getCurrentDB.put({
-      _id: `note-${uuid()}`,
+      _id: noteID,
+      boardID,
+      columnID,
       text: text,
       position: 0,
-      type: 'note'
-    })
+      type: 'note',
+      timestamp: Date.now()
+    }).then(() => dispatch('addNoteToColumn', { columnID, noteID, position: 0 }))
   },
   /**
-   * read all de boards from a workspace and sets the to the store
+   * Read all de boards from a workspace and stores them in the store
+   * @param ctx Vuex context object
+   * @param workspaceID workspace to read the boards from
    */
-  readBoards: ({ getters, commit }, workspaceID) => {
-    return getters.getCurrentDB.query('workspace/boards', {include_docs: true})
+  readWorkspaceBoards: ({ getters, commit }, workspaceID) => {
+    return getters.getCurrentDB.query('workspace/boards', { include_docs: true })
       .then(({ rows }) => {
         rows.forEach(({ doc }) => commit('setBoard', doc))
         return Promise.resolve()
       })
   },
   /**
-   * Read all the columns from a workspace
+   * Read the columns and notes for a board
    */
-  readColumns: ({ getters, commit, dispatch }, { workspaceID, boardID }) => {
-    getters.getCurrentDB.allDocs({ include_docs: true, keys: getters.getBoard(boardID).columns }).then((columns) => {
-      columns.rows.forEach(({ doc }) => {
-        commit('setColumn', doc)
-        dispatch('readNotes', doc.notes)
+  readBoardContent: ({ getters, commit, dispatch }, boardID) => {
+    return getters.getCurrentDB.query('workspace/boardContent', { include_docs: true, key: boardID })
+      .then(({ rows }) => {
+        rows.forEach(({ doc }) => doc.type === 'column' ? commit('setColumn', doc) : commit('setNote', doc))
+        return Promise.resolve()
       })
-    })
-  },
-  /**
-   * Read all the notes from a workspace
-   */
-  readNotes: ({ getters, commit, dispatch }, notes) => {
-    return getters.getCurrentDB.allDocs({ include_docs: true, keys: notes })
-      .then((notes) => notes.rows.forEach(({ doc }) => commit('setNote', doc)))
   },
   /**
    * Move a column inside a board, it will change the position of the rest of the columns
    */
-  moveColumn: ({ getters }, { columnID, oldPosition, newPosition }) => {
+  moveColumn: ({ getters, dispatch }, { columnID, oldPosition, newPosition }) => {
     let db = getters.getCurrentDB
-    let updatedColumns = []
-    if (newPosition < oldPosition) {
-      updatedColumns = getters.getColumns
-        .filter(({ position }) => position >= newPosition && position < oldPosition)
-        .map((column) => ({ ...column, position: column.position + 1 }))
-    } else if (newPosition > oldPosition) {
-      updatedColumns = getters.getColumns
-        .filter(({ position }) => position <= newPosition && position > oldPosition)
-        .map((column) => ({ ...column, position: column.position - 1 }))
-    }
     return db.get(columnID)
-      .then((columnDoc) => db.bulkDocs([{ ...columnDoc, position: newPosition }, ...updatedColumns]))
+      .then((columnDoc) => db.bulkDocs([
+        { ...columnDoc, position: newPosition },
+        ...updateDocsPositions({ docs: Object.values(getters.getColumns), oldPosition, newPosition })
+      ]))
   },
   /**
    * Adds a note to a column, it will change the position of the rest of the notes
    */
   addNoteToColumn: ({ getters }, { columnID, noteID, position }) => {
     let db = getters.getCurrentDB
+    // let updatedNotes = dispatch('updateDocsPositions', { docs: getters.getColumnNotes(columnID)})
     let updatedNotes = getters.getColumnNotes(columnID)
       .filter((note) => note.position >= position)
       .map((note) => ({ ...note, position: note.position + 1 }))
-    return db.get(columnID)
-      .then((columnDoc) => db.bulkDocs([{ ...columnDoc, notes: [...columnDoc.notes, noteID] }, ...updatedNotes]))
+    return db.get(noteID).then((noteDoc) => db.bulkDocs([{ ...noteDoc, position: position, columnID: columnID }, ...updatedNotes]))
   },
   /**
    * Removes a note from a column, it will change the position of the rest of the notes
@@ -128,10 +132,9 @@ const actions = {
   removeNoteFromColumn: ({ getters }, { columnID, noteID, position }) => {
     let db = getters.getCurrentDB
     let updatedNotes = getters.getColumnNotes(columnID)
-      .filter((note) => note.position >= position)
+      .filter((note) => note.position > position)
       .map((note) => ({ ...note, position: note.position - 1 }))
-    return db.get(columnID)
-      .then((columnDoc) => db.bulkDocs([{ ...columnDoc, notes: removeFromArray(columnDoc.notes, noteID) }, ...updatedNotes]))
+    return db.bulkDocs(updatedNotes)
   },
   /**
    * Moves a note inside a column, it will change the position of the rest of the notes
@@ -140,11 +143,11 @@ const actions = {
     let db = getters.getCurrentDB
     let updatedNotes = []
     if (newPosition < oldPosition) {
-      updatedNotes = getters.getColumnNotes(columnID)
+      updatedNotes = Object.values(getters.getColumnNotes(columnID))
         .filter(({ position }) => position >= newPosition && position < oldPosition)
         .map((note) => ({ ...note, position: note.position + 1 }))
     } else if (newPosition > oldPosition) {
-      updatedNotes = getters.getColumnNotes(columnID)
+      updatedNotes = Object.values(getters.getColumnNotes(columnID))
         .filter(({ position }) => position <= newPosition && position > oldPosition)
         .map((note) => ({ ...note, position: note.position - 1 }))
     }

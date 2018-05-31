@@ -1,5 +1,5 @@
 <template>
-  <div class="note">
+  <div class="note animated fadeIn">
     <p class="no-margin">{{note.text}}</p>
   </div>
 </template>

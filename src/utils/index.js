@@ -27,8 +27,21 @@ const removeFromArray = (arr, element) => {
   return arr.slice(0, arr.indexOf(element)).concat(arr.slice(arr.indexOf(element) + 1, arr.length))
 }
 
+const updateDocsPositions = ({ docs, oldPosition, newPosition }) => {
+  return docs.filter(({ position }) => (newPosition < oldPosition)
+    ? (position >= newPosition && position < oldPosition)
+    : (position <= newPosition && position > oldPosition)
+  ).map((doc) => ({
+    ...doc,
+    position: (newPosition < oldPosition)
+      ? doc.position + 1
+      : doc.position - 1
+  }))
+}
+
 export { promisifyValidator }
 export { workspaceNotExist }
 export { URL }
 export { arr2obj }
 export { removeFromArray }
+export { updateDocsPositions }

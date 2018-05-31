@@ -22,7 +22,7 @@
         </md-field>
         <md-field>
           <label>Password</label>
-          <md-input required v-model="account.password" type="password" autocomplete="off"></md-input>
+          <md-input required v-model="account.password" type="password" autocomplete="new-password"></md-input>
         </md-field>
         <div class="full-width text-center">
           <md-button @click="create" class="md-raised md-accent" type="submit">Create Account</md-button>

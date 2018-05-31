@@ -15,7 +15,15 @@ const state = {
   /**
    * Full information abaout the users that belong to the current opened workspace
    */
-  workspaceUsers: {}
+  workspaceUsers: {},
+  /**
+   * Boolean to tell if the workspace is loading
+   */
+  loadingWorkspace: true,
+  /**
+   * Pending action to run after entering the password
+   */
+  pendingAction: null
 }
 
 const getters = {
@@ -38,7 +46,15 @@ const getters = {
   /**
    * Return the admins from the current workspace
    */
-  getWorkspaceAdmins: (state) => state.workspaces && state.workspaces[state.currentWorkspace] && state.workspaces[state.currentWorkspace].admins
+  getWorkspaceAdmins: (state) => state.workspaces && state.workspaces[state.currentWorkspace] && state.workspaces[state.currentWorkspace].admins,
+  /**
+   * Returns if the workspace is loading
+   */
+  getLoadingWorkspace: (state) => state.loadingWorkspace,
+  /**
+   * Return the pending action from the state
+   */
+  getPendingAction: (state) => state.pendingAction
 }
 
 const mutations = {
@@ -61,7 +77,15 @@ const mutations = {
   /**
    * Sets a user in the workspaces users list
    */
-  setWorkspaceUser: (state, user) => { Vue.set(state.workspaceUsers, user.email, user) }
+  setWorkspaceUser: (state, user) => { Vue.set(state.workspaceUsers, user.email, user) },
+  /**
+   * Sets if the workspace is loading
+   */
+  setLoadingWorkspace: (state, loading) => { state.loadingWorkspace = loading },
+  /**
+   * Sets the pending action
+   */
+  setPendingAction: (state, action) => { state.pendingAction = action }
 }
 
 const actions = {
@@ -70,22 +94,49 @@ const actions = {
    */
   createWorkspace: ({ dispatch, getters, commit }, { workspace, password }) => {
     // Prepares the workspace object
-    workspace = { ...workspace, users: [...workspace.users, getters.getUser.email], admins: [getters.getUser.email], type: 'workspace' }
+    workspace = { ...workspace, users: [...workspace.users, getters.getUser.email], admins: [getters.getUser.email], type: 'workspace', timestamp: Date.now() }
     // Validates the object
     return promisifyValidator(validateWorkspace, workspace)
       // Checks if the workspace already exists
       .then(() => workspaceNotExist(getters.couchURL, workspace._id))
       // Posts the workspace creation request to the node server
-      .then(() => axios.post(getters.serverURL + '/workspace', workspace ))
+      .then(() => axios.post(getters.serverURL + '/workspace', workspace, { headers: { auth: `${getters.getUser.email}:${password}` } }))
       // Initializes the app again
       .then(() => dispatch('init'))
       // Handles the error
-      .catch((error) => (error.response)
-        ? Promise.reject(error.response.data.reason)
-        : Promise.reject(error.reason))
+      .catch((error) => {
+        return (error.response)
+          ? Promise.reject(error.response.data)
+          : Promise.reject(error.reason)
+      })
+  },
+  updateWorkspace: ({ getters }, workspace) => {
+    let db = getters.getCurrentDB
+    return db.get(workspace._id)
+      .then((workspaceDoc) => db.put({ ...workspaceDoc, ...workspace }))
+      .catch((error) => console.log(error))
+  },
+  openWorkspace: ({ dispatch, commit }, workspaceID) => {
+    commit('setLoadingWorkspace', true)
+    commit('setCurrentWorkspace', workspaceID)
+    dispatch('syncWorkspaceDB', workspaceID)
+    dispatch('readWorkspaceUsers', workspaceID)
+    dispatch('readWorkspaceBoards', workspaceID)
+      .then(() => commit('setLoadingWorkspace', false))
+      .catch((error) => commit('setMessage', error.reason))
+  },
+  closeWorkspace: ({ dispatch, commit }, workspaceID) => {
+    dispatch('unsyncWorkspaceDB', workspaceID)
+    commit('setBoards', {})
+    commit('setColumns', {})
+    commit('setNotes', {})
+  },
+  reloadCurrentWorkspace: ({ getters, dispatch }) => {
+    dispatch('closeWorkspace', getters.getCurrentWorkspace)
+    dispatch('openWorkspace', getters.getCurrentWorkspace)
   },
   /**
-   * Reads the workspace information documents for all the user's workspaces
+   * Reads the information for all the workspaces
    */
   readWorkspacesPreview: ({ dispatch, getters }) => {
     return Promise.all(getters.userWorkspaces
@@ -122,37 +173,71 @@ const actions = {
   /**
    * Sends the request to the server to add a new user to the workspace
    */
-  addUserToWorkspace: ({ getters, commit }, { workspaceID, user }) => {
-    axios.post(`${getters.serverURL}/${workspaceID}/user`, { user })
+  addUserToWorkspace: ({ getters, commit, dispatch }, { email, password }) => {
+    return axios.post(`${getters.serverURL}/workspace/${getters.getCurrentWorkspace}/user`, { email: email }, { headers: { auth: `${getters.getUser.email}:${password}` } })
+      .then(() => dispatch('readWorkspaceUsers', getters.getCurrentWorkspace))
+      .catch((error) => commit('setMessage', error.response.data))
+  },
+  /**
+   * Sends the request to the server to add a new admin to the workspace
+   */
+  addAdminToWorkspace: ({ getters, commit, dispatch }, { email, password }) => {
+    return axios.post(`${getters.serverURL}/workspace/${getters.getCurrentWorkspace}/admin`, { email: email }, { headers: { auth: `${getters.getUser.email}:${password}` } })
+      .then(() => dispatch('readWorkspaceUsers', getters.getCurrentWorkspace))
+      .catch((error) => {
+        commit('setMessage', error.response.data)
+        return Promise.reject()
+      })
+  },
+  /**
+   * Sends the request to the server to remove a user from the workspace
+   */
+  removeUserFromWorkspace: ({ getters, commit, dispatch }, { email, password }) => {
+    return axios.delete(`${getters.serverURL}/workspace/${getters.getCurrentWorkspace}/user/${email}`, { headers: { auth: `${getters.getUser.email}:${password}` } })
+      .then(() => dispatch('readWorkspaceUsers', getters.getCurrentWorkspace))
+      .catch((error) => {
+        commit('setMessage', error.response.data)
+        return Promise.reject()
+      })
+  },
+  /**
+   * Sends the request to the server to remove an admin from the workspace
+   */
+  removeAdminFromWorkspace: ({ getters, commit, dispatch }, { email, password }) => {
+    return axios.delete(`${getters.serverURL}/workspace/${getters.getCurrentWorkspace}/admin/${email}`, { headers: { auth: `${getters.getUser.email}:${password}` } })
+      .then(() => dispatch('readWorkspaceUsers', getters.getCurrentWorkspace))
+      .catch((error) => {
+        commit('setMessage', error.response.data)
+        return Promise.reject()
+      })
   },
   /**
    * Action trigerred when there is a change in the current workspace database
    */
-  workspaceChange: ({ state, commit, dispatch }, { change }) => {
+  workspaceChange: ({ getters, state, commit, dispatch }, { change }) => {
     console.log(change)
     change.docs.forEach((doc) => {
-      if (doc.type === 'workspace') {
-        commit('setWorkspace', doc)
-      } else if (doc.type === 'board') {
-        if (doc._deleted) {
-          commit('removeBoard', doc._id)
-        } else {
+      if (doc._deleted) {
+        this.dispatch('reloadCurrentWorkspace')
+      } else {
+        if (doc.type === 'workspace') {
+          commit('setWorkspace', doc)
+        } else if (doc.type === 'board') {
           commit('setBoard', doc)
-        }
-      } else if (doc.type === 'column') {
-        if (doc._deleted) {
-          commit('removeColumn', doc._id)
-        } else {
+        } else if (doc.type === 'column') {
           commit('setColumn', doc)
-        }
-      } else if (doc.type === 'note') {
-        if (doc._deleted) {
-          commit('removeNote', doc._id)
-        } else {
+        } else if (doc.type === 'note') {
           commit('setNote', doc)
         }
       }
     })
+  },
+  /**
+   * Runs the pending action
+   */
+  runPendingAction: ({ getters, dispatch, commit }, password) => {
+    dispatch(getters.getPendingAction.action, {...getters.getPendingAction.params, password})
+      .then(() => commit('setMessage', getters.getPendingAction.success))
   }
 }
 

@@ -8,8 +8,7 @@ const state = {
   workspaces: {},
   dialog: null,
   message: '',
-  loadingApp: true,
-  loadingWorkspace: true
+  loadingApp: true
 }
 
 const getters = {
@@ -18,8 +17,7 @@ const getters = {
   getMessage: (state) => state.message,
   couchURL: (state) => state.couchURL,
   serverURL: (state) => state.serverURL,
-  getLoadingApp: (state) => state.loadingApp,
-  getLoadingWorkspace: (state) => state.loadingWorkspace
+  getLoadingApp: (state) => state.loadingApp
 }
 
 const mutations = {
@@ -27,8 +25,7 @@ const mutations = {
   initialize: (state) => { state.initialized = true },
   setDialog: (state, dialog) => { state.dialog = dialog },
   setMessage: (state, message) => { state.message = message },
-  setLoadingApp: (state, loading) => { state.loadingApp = loading },
-  setLoadingWorkspace: (state, loading) => { state.loadingWorkspace = loading }
+  setLoadingApp: (state, loading) => { state.loadingApp = loading }
 }
 
 const actions = {

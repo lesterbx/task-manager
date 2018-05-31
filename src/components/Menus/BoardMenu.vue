@@ -5,11 +5,11 @@
     </md-button>
     <md-menu-content>
       <md-list>
-        <md-list-item @click="setDialog('workspace-info')">
+        <md-list-item @click="setDialog('rename-board')">
           <md-icon>edit</md-icon>
           <span class="md-list-item-text">Rename</span>
         </md-list-item>
-        <md-list-item @click="setDialog('workspace-users')">
+        <md-list-item @click="setDialog('delete-board')">
           <md-icon>delete</md-icon>
           <span class="md-list-item-text">Delete</span>
         </md-list-item>

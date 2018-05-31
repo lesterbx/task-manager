@@ -1,5 +1,5 @@
 <template>
-  <md-card class="column no-margin">
+  <md-card class="column no-margin animated fadeIn">
     <md-card-header class="column-header">
       <h3 class="no-margin">{{column.title}}</h3>
       <column-menu></column-menu>
@@ -45,7 +45,7 @@ export default {
     ...mapActions(['createNote', 'addNoteToColumn', 'removeNoteFromColumn', 'moveNoteInColumn', 'updateNotePosition']),
     addNote (text) {
       this.createNote({
-        workspaceID: this.$route.params.workspaceID,
+        boardID: this.$route.params.boardID,
         columnID: this.column._id,
         text
       })
@@ -54,7 +54,6 @@ export default {
     noteMoved (event, columnID) {
       if (event.added) {
         this.addNoteToColumn({ columnID, noteID: event.added.element._id, position: event.added.newIndex })
-          .then(() => this.updateNotePosition({ noteID: event.added.element._id, newPosition: event.added.newIndex }))
       } else if (event.removed) {
         this.removeNoteFromColumn({ columnID, noteID: event.removed.element._id, position: event.removed.oldIndex })
       } else if (event.moved) {
@@ -69,6 +68,7 @@ export default {
   width: 270px;
   max-height: calc(100vh - 64px - 2em);
   height: fit-content;
+  overflow: hidden;
 }
 .column + .column{
   margin-left: 1em !important;

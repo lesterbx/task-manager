@@ -3,19 +3,18 @@
       <div class="padding margin animated fadeIn" action="javascript:void(0)" autocomplete="nope">
         <h3 v-if="isNew" class="text-center">Create workspace</h3>
         <h3 v-if="edit" class="text-center">Edit workspace</h3>
-        <form action="javascript:void(0)" :class="!edit && !isNew && 'form-read-only'" @change="setMessage('')">
+        <form action="javascript:void(0)" :class="!edit && !isNew && 'form-read-only'">
           <input type="password" style="display:none">
           <div class="md-layout">
             <div class="md-layout-item md-size-40 padding-right picture-wrapper">
-              <picture-input @change="pictureSelected" :hideChangeButton="true" size="1" :customStrings="{drag: 'Picture', tap: 'Picture'}" @error="pictureError" :alertOnError="false">
-                <img v-if="!isNew && !edit" :src="workspace.picture"/>
+              <picture-input v-if="isNew || edit" :prefill="workspace.picture"  @change="pictureSelected" :hideChangeButton="true" size="1" :customStrings="{drag: 'Picture', tap: 'Picture'}" @error="pictureError" :alertOnError="false">
               </picture-input>
-              <img v-if="!isNew && !edit" :src="workspace.picture"/>
+              <div class="preview-picture" v-if="!isNew && !edit" :style="`background-image: url('${workspace.picture}')`"></div>
             </div>
             <div class="md-layout-item">
               <md-field>
                 <label>Title</label>
-                <md-input :disabled="!isNew && !edit" v-model="workspace.title" autocomplete="nope" @keyup="setID"></md-input>
+                <md-input :disabled="!isNew && !edit" v-model="workspace.title" autocomplete="nope" @keyup="isNew && setID()"></md-input>
               </md-field>
               <md-field>
                 <label>Workspace ID</label>
@@ -28,12 +27,13 @@
               </md-field>
             </div>
           </div>
+          
           <md-chips v-if="isNew" :md-check-duplicated="true" md-input-type="email" v-model="workspace.users" md-placeholder="User emails, enter and press enter"></md-chips>
           
-          <md-divider v-if="isNew || edit"></md-divider>
-          <md-field v-if="isNew || edit">
+          <md-divider v-if="isNew"></md-divider>
+          <md-field v-if="isNew">
             <label>Password</label>
-            <md-input type="password" v-model="password" autocomplete="nope" name="psw"></md-input>
+            <md-input type="password" v-model="password" autocomplete="new-password" name="psw"></md-input>
             <span class="md-helper-text">Enter your password for security</span>
           </md-field>
         </form>
@@ -55,7 +55,7 @@ export default {
   components: { PictureInput },
   data () {
     return {
-      newWorkspace: {
+      workspace: {
         title: '',
         _id: '',
         users: [],
@@ -68,14 +68,6 @@ export default {
   },
   computed: {
     ...mapGetters({dialog: 'getDialog', getWorkspace: 'getWorkspace', currentWorkspace: 'getCurrentWorkspace'}),
-    workspace: {
-      get () {
-        return this.dialog === 'edit-workspace' ? this.getWorkspace(this.currentWorkspace) : this.newWorkspace
-      },
-      set (workspace) {
-        console.log(workspace)
-      }
-    },
     showDialog: {
       get () {
         return this.dialog === 'create-workspace' || this.dialog === 'edit-workspace'
@@ -88,16 +80,23 @@ export default {
       return this.dialog === 'create-workspace'
     }
   },
+  mounted () {
+    if (this.dialog === 'edit-workspace') {
+      this.workspace = { ...this.getWorkspace(this.currentWorkspace) }
+    }
+  },
   methods: {
     ...mapMutations(['setDialog', 'setMessage']),
-    ...mapActions(['createWorkspace']),
+    ...mapActions(['createWorkspace', 'updateWorkspace']),
     create () {
       this.createWorkspace({workspace: this.workspace, password: this.password})
         .then(() => this.setDialog(null))
         .catch((error) => this.setMessage(error))
     },
     save () {
-
+      this.updateWorkspace(this.workspace)
+        .then(() => this.setDialog(null))
+        .catch((error) => this.setMessage(error))
     },
     setID () {
       this.workspace._id = slugify(this.workspace.title, {lower: true})
@@ -117,6 +116,11 @@ export default {
 <style lang="scss" scoped>
   .md-chip{
     margin-left: 4px!important;
+  }
+  .preview-picture{
+    background-size: cover;
+    width:100%;
+    height: 100%;
   }
   .picture-wrapper{
     display: flex;

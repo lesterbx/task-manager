@@ -8,7 +8,7 @@
       </md-field>
       <md-field>
         <label>Password</label>
-        <md-input name='password' v-model='password' type='password' autocomplete='off'></md-input>
+        <md-input name='password' v-model='password' type='password' autocomplete='new-password'></md-input>
       </md-field>
       <div class='full-width text-center'>
         <md-button @click='log()' type='submit' class='md-raised md-accent'>Login</md-button>

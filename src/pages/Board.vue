@@ -19,23 +19,23 @@ export default {
   computed: {
     ...mapGetters({columns: 'getColumns'}),
     sortedColumns () {
-      return this.columns && this.columns.length === 1
-        ? this.columns
-        : this.columns.sort((a, b) => a.position - b.position)
+      return Object.keys(this.columns).length > 0 && Object.values(this.columns).sort((a, b) => a.position - b.position)
     }
   },
   methods: {
-    ...mapActions(['readColumns', 'createColumn', 'moveColumn']),
-    ...mapMutations(['setCurrentBoard']),
+    ...mapActions(['readBoardContent', 'createColumn', 'moveColumn']),
+    ...mapMutations(['setCurrentBoard', 'setMessage']),
     addColumn (title) {
       this.createColumn({ boardID: this.$route.params.boardID, title: title })
+        .catch(error => this.setMessage(error.reason))
     },
     movedColumn ({moved}) {
       this.moveColumn({ columnID: moved.element._id, oldPosition: moved.oldIndex, newPosition: moved.newIndex })
+        .catch(error => this.setMessage(error.reason))
     }
   },
   created () {
-    // this.readColumns({ boardID: this.$route.params.boardID })
+    this.readBoardContent(this.$route.params.boardID)
     this.setCurrentBoard(this.$route.params.boardID)
   }
 }

@@ -11,7 +11,7 @@
           <app-dialog v-if="dialog && dialog !== ''"></app-dialog>
         </div>
         <app-footer v-if="$route.name !== 'Board'"></app-footer>
-        <md-snackbar md-position="center" :md-active.sync="showMessage" :md-duration="20000">
+        <md-snackbar md-position="center" :md-active.sync="showMessage" :md-duration="5000">
           <span class="full-width text-center">{{message}}</span>
           <md-button class="md-accent" @click="showMessage = false">OK</md-button>
         </md-snackbar>

@@ -62,7 +62,7 @@ const actions = {
     commit('setSyncHandler', {
       workspaceID,
       handler: getters.getWorkspaceDB(workspaceID)
-        .sync(`${getters.couchURL}/${workspaceID}`, { live: true, retry: true })
+        .sync(`${getters.couchURL}/${workspaceID}`, { live: true, retry: true, include_docs: true })
         .on('change', (change) => dispatch('workspaceChange', change))
         .on('error', (error) => commit('setMessage', error))
     })

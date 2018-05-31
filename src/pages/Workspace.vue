@@ -17,22 +17,21 @@ export default {
     ...mapGetters({loading: 'getLoadingWorkspace'})
   },
   methods: {
-    ...mapActions(['syncWorkspaceDB', 'unsyncWorkspaceDB', 'readWorkspaceBoards']),
+    ...mapActions(['openWorkspace', 'closeWorkspace']),
     ...mapMutations(['setCurrentWorkspace'])
   },
   mounted () {
     this.workspaceID = this.$route.params.workspaceID
-    commit('setCurrentWorkspace', this.workspaceID)
-    this.syncWorkspaceDB(this.workspaceID)
+    this.openWorkspace(this.workspaceID)
   },
   beforeDestroy () {
-    this.unsyncWorkspaceDB(this.workspaceID)
+    this.closeWorkspace(this.workspaceID)
   },
   beforeRouteUpdate (to, from, next) {
     if (this.workspaceID !== to.params.workspaceID) {
       this.workspaceID = to.params.workspaceID
-      this.unsyncWorkspaceDB(from.params.workspaceID)
-      this.syncWorkspaceDB(to.params.workspaceID)
+      this.closeWorkspace(from.params.workspaceID)
+      this.openWorkspace(to.params.workspaceID)
     }
     next()
   }
