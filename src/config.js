@@ -1,11 +1,11 @@
 const db = {
   protocol: 'http',
-  host: 'localhost',
+  host: '127.0.0.1',
   port: 5984
 }
 const server = {
   protocol: 'http',
-  host: 'localhost',
+  host: '127.0.0.1',
   port: 3000
 }
 
