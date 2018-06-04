@@ -1,12 +1,13 @@
 <template>
-  <md-dialog-prompt :md-active.sync='showDialog' 
-      v-model='title'
-      md-title='Create Board'
-      md-input-placeholder='Board Title'
-      @md-confirm='create' />
+  <md-dialog-prompt :md-active.sync="showDialog"
+      v-model="title"
+      md-title="Create Board"
+      md-input-placeholder="Board Title"
+      @md-confirm="$emit('confirm', { title })"
+      @md-cancel="closeDialog" />
 </template>
 <script>
-import { mapGetters, mapMutations, mapActions } from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
 export default {
   name: 'create-board',
   data () {
@@ -18,23 +19,14 @@ export default {
     ...mapGetters({ dialog: 'getDialog' }),
     showDialog: {
       get () {
-        return this.dialog === 'create-board'
+        return this.dialog.name === 'create-board'
       },
       set (show) {
-        this.setDialog(show ? 'create-board' : null)
       }
     }
   },
   methods: {
-    ...mapMutations(['setDialog', 'setMessage']),
-    ...mapActions(['createBoard']),
-    create () {
-      if (this.title !== '') {
-        this.createBoard({ title: this.title, workspaceID: this.$route.params.workspaceID })
-      } else {
-        this.setMessage('Enter a title')
-      }
-    }
+    ...mapMutations(['closeDialog'])
   }
 }
 </script>

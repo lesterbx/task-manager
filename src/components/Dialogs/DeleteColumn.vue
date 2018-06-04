@@ -1,24 +1,21 @@
 <template>
-  <md-dialog-prompt :md-active.sync="showDialog" 
-      v-model="title"
-      md-title="Rename Board"
-      md-input-placeholder="New Title"
-      @md-confirm="$emit('confirm', { title })" />
+  <md-dialog-confirm
+    :md-active.sync="showDialog"
+    md-title="Delete column"
+    md-content="Are you sure that you want to remove this column? All the notes will be removed too."
+    md-confirm-text="Yes"
+    md-cancel-text="No"
+    @md-confirm="$emit('confirm')" />
 </template>
 <script>
 import { mapGetters, mapMutations } from 'vuex'
 export default {
   name: 'create-board',
-  data () {
-    return {
-      title: ''
-    }
-  },
   computed: {
     ...mapGetters({ dialog: 'getDialog' }),
     showDialog: {
       get () {
-        return this.dialog.name === 'rename-board'
+        return this.dialog.name === 'delete-column'
       },
       set (show) {
         !show && this.closeDialog()

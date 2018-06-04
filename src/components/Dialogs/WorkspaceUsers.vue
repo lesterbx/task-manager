@@ -2,7 +2,7 @@
   <md-dialog :md-active.sync="showDialog" :md-fullscreen="false" class="padding">
     <div class="users-header">
       <h3 :class="currentAdmin && 'no-margin'">Workspace Users</h3>
-      <md-button v-if="currentAdmin" @click="setDialog('add-user')" class="md-primary md-mini" md-menu-trigger>Add User</md-button>
+      <md-button v-if="currentAdmin" @click="setDialog({ name: 'add-user', action: 'addUserToWorkspace', success: 'User added succesfully' })" class="md-primary md-mini" md-menu-trigger>Add User</md-button>
     </div>
     <md-divider></md-divider>
     <md-list class="md-double-line">
@@ -13,7 +13,7 @@
           <span>{{ user.email }}</span>
         </div>
         <md-badge v-if="isAdmin(user.email)" class="md-square md-primary margin-right" md-content="Admin"></md-badge>
-        <user-menu v-if="currentAdmin" :admin="isAdmin(user.email)" :self="currentUser.email === user.email" class="md-list-action" @admin="makeAdmin(user.email)" @revoke="removeAdmin(user.email)" @delete="deleteUser(user.email)"></user-menu>
+        <user-menu v-if="currentAdmin" :admin="isAdmin(user.email)" :self="currentUser.email === user.email" class="md-list-action" @admin="makeAdmin(user.email)" @revoke="removeAdmin(user.email)" @delete="deleteUser(user.email)" @leave="leave(user.email)"></user-menu>
       </md-list-item>
     </md-list>
   </md-dialog>
@@ -27,10 +27,10 @@ export default {
     ...mapGetters({dialog: 'getDialog', currentUser: 'getUser', users: 'getWorkspaceUsers', admins: 'getWorkspaceAdmins'}),
     showDialog: {
       get () {
-        return this.dialog === 'workspace-users'
+        return this.dialog.name === 'workspace-users'
       },
       set (show) {
-        this.setDialog(show ? 'workspace-users' : null)
+        this.setDialog({ name: show ? this.dialog.name : null })
       }
     },
     currentAdmin () {
@@ -44,16 +44,16 @@ export default {
       return this.admins && this.admins.includes(user)
     },
     makeAdmin (email) {
-      this.setPendingAction({ action: 'addAdminToWorkspace', params: { email }, success: 'Admin added succesfully' })
-      this.setDialog('password')
+      this.setDialog({ name: 'password', action: 'addAdminToWorkspace', params: { email }, success: 'Admin added succesfully' })
     },
     removeAdmin (email) {
-      this.setPendingAction({ action: 'removeAdminFromWorkspace', params: { email }, success: 'Admin revoked succesfully' })
-      this.setDialog('password')
+      this.setDialog({ name: 'password', action: 'removeAdminFromWorkspace', params: { email }, success: 'Admin revoked succesfully' })
     },
     deleteUser (email) {
-      this.setPendingAction({ action: 'removeUserFromWorkspace', params: { email }, success: 'User removed succesfully' })
-      this.setDialog('password')
+      this.setDialog({ name: 'password', action: 'removeUserFromWorkspace', params: { email }, success: 'User removed succesfully' })
+    },
+    leave (email) {
+      this.setDialog({ name: 'password', action: 'removeUserFromWorkspace', params: { email }, success: 'Workspace left' })
     }
   }
 }

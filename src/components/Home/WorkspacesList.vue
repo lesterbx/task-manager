@@ -12,13 +12,9 @@
 <script>
 import WorkspaceCard from './WorkspaceCard'
 import CreateWorkspaceCard from './CreateWorkspaceCard'
-import { mapMutations } from 'vuex'
 export default {
   components: { WorkspaceCard, CreateWorkspaceCard },
-  props: ['workspaces'],
-  methods: {
-    ...mapMutations(['setDialog'])
-  }
+  props: ['workspaces']
 }
 </script>
 <style lang="scss">

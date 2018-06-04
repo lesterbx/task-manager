@@ -33,6 +33,7 @@ const updateDocsPositions = ({ docs, oldPosition, newPosition }) => {
     : (position <= newPosition && position > oldPosition)
   ).map((doc) => ({
     ...doc,
+    timestamp: Date.now(),
     position: (newPosition < oldPosition)
       ? doc.position + 1
       : doc.position - 1

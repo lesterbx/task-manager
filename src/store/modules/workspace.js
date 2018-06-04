@@ -1,6 +1,6 @@
 import Vue from 'vue'
-import { promisifyValidator, workspaceNotExist } from '../utils'
-import { validateWorkspace } from '../utils/validators'
+import { promisifyValidator, workspaceNotExist } from '@/utils'
+import { validateWorkspace } from '@/utils/validators'
 import axios from 'axios'
 
 const state = {
@@ -105,17 +105,24 @@ const actions = {
       .then(() => dispatch('init'))
       // Handles the error
       .catch((error) => {
+        console.log(JSON.stringify(error))
         return (error.response)
           ? Promise.reject(error.response.data)
           : Promise.reject(error.reason)
       })
   },
+  /**
+   * Updates the information fo a workspace
+   */
   updateWorkspace: ({ getters }, workspace) => {
     let db = getters.getCurrentDB
     return db.get(workspace._id)
-      .then((workspaceDoc) => db.put({ ...workspaceDoc, ...workspace }))
+      .then((workspaceDoc) => db.put({ ...workspaceDoc, ...workspace, timestamp: Date.now() }))
       .catch((error) => console.log(error))
   },
+  /**
+   * Makes all the necessary actions to open a workspace
+   */
   openWorkspace: ({ dispatch, commit }, workspaceID) => {
     commit('setLoadingWorkspace', true)
     commit('setCurrentWorkspace', workspaceID)
@@ -125,12 +132,18 @@ const actions = {
       .then(() => commit('setLoadingWorkspace', false))
       .catch((error) => commit('setMessage', error.reason))
   },
+  /**
+   * Makes all the necessary actions to close a workspace
+   */
   closeWorkspace: ({ dispatch, commit }, workspaceID) => {
     dispatch('unsyncWorkspaceDB', workspaceID)
     commit('setBoards', {})
     commit('setColumns', {})
     commit('setNotes', {})
   },
+  /**
+   * Reloads the currently opened workspace
+   */
   reloadCurrentWorkspace: ({ getters, dispatch }) => {
     dispatch('closeWorkspace', getters.getCurrentWorkspace)
     dispatch('openWorkspace', getters.getCurrentWorkspace)
@@ -158,12 +171,12 @@ const actions = {
    * Reads the full information for the current workpsace users
    */
   readWorkspaceUsers: ({ getters, commit, dispatch }, workspaceID) => {
-    return Promise.all(getters.getWorkspace(workspaceID).users.map((email) => dispatch('readUser', email)))
+    return Promise.all(getters.getWorkspace(workspaceID).users.map((email) => dispatch('readWorkspaceUser', email)))
   },
   /**
-   * Reads the full info for a user sets it to the state
+   * Reads the full info for workspace a user and sets it to the state
    */
-  readUser: ({ getters, commit }, email) => {
+  readWorkspaceUser: ({ getters, commit }, email) => {
     return getters.getAuthDB.get('org.couchdb.user:' + email)
       .then((user) => {
         commit('setWorkspaceUser', { ...user, email: user.name })
@@ -175,19 +188,22 @@ const actions = {
    */
   addUserToWorkspace: ({ getters, commit, dispatch }, { email, password }) => {
     return axios.post(`${getters.serverURL}/workspace/${getters.getCurrentWorkspace}/user`, { email: email }, { headers: { auth: `${getters.getUser.email}:${password}` } })
-      .then(() => dispatch('readWorkspaceUsers', getters.getCurrentWorkspace))
-      .catch((error) => commit('setMessage', error.response.data))
+      .then(() => {
+        dispatch('readWorkspaceUsers', getters.getCurrentWorkspace)
+        return Promise.resolve()
+      })
+      .catch((error) => Promise.reject(error.response.data))
   },
   /**
    * Sends the request to the server to add a new admin to the workspace
    */
   addAdminToWorkspace: ({ getters, commit, dispatch }, { email, password }) => {
     return axios.post(`${getters.serverURL}/workspace/${getters.getCurrentWorkspace}/admin`, { email: email }, { headers: { auth: `${getters.getUser.email}:${password}` } })
-      .then(() => dispatch('readWorkspaceUsers', getters.getCurrentWorkspace))
-      .catch((error) => {
-        commit('setMessage', error.response.data)
-        return Promise.reject()
+      .then(() => {
+        dispatch('readWorkspaceUsers', getters.getCurrentWorkspace)
+        return Promise.resolve()
       })
+      .catch((error) => Promise.reject(error.response.data))
   },
   /**
    * Sends the request to the server to remove a user from the workspace
@@ -236,7 +252,7 @@ const actions = {
    * Runs the pending action
    */
   runPendingAction: ({ getters, dispatch, commit }, password) => {
-    dispatch(getters.getPendingAction.action, {...getters.getPendingAction.params, password})
+    dispatch(getters.getPendingAction.action, { ...getters.getPendingAction.params, password })
       .then(() => commit('setMessage', getters.getPendingAction.success))
   }
 }

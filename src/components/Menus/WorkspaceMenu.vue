@@ -5,11 +5,11 @@
     </md-button>
     <md-menu-content>
       <md-list>
-        <md-list-item @click="setDialog('edit-workspace')">
+        <md-list-item @click="setDialog({ name: 'edit-workspace', action: 'updateWorkspace' })">
           <md-icon>info</md-icon>
           <span class="md-list-item-text">Information</span>
         </md-list-item>
-        <md-list-item @click="setDialog('workspace-users')">
+        <md-list-item @click="setDialog({ name: 'workspace-users' })">
           <md-icon>people</md-icon>
           <span class="md-list-item-text">Users</span>
         </md-list-item>

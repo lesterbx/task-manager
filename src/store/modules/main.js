@@ -1,14 +1,19 @@
-import { db, server } from '../config.js'
-import { URL } from '../utils'
+import { db, server } from '@/config.js'
+import { URL } from '@/utils'
 
 const state = {
   online: false,
   couchURL: URL(db),
   serverURL: URL(server),
   workspaces: {},
-  dialog: null,
   message: '',
-  loadingApp: true
+  loadingApp: true,
+  dialog: {
+    name: null,
+    action: null,
+    params: null,
+    success: null
+  }
 }
 
 const getters = {
@@ -25,7 +30,8 @@ const mutations = {
   initialize: (state) => { state.initialized = true },
   setDialog: (state, dialog) => { state.dialog = dialog },
   setMessage: (state, message) => { state.message = message },
-  setLoadingApp: (state, loading) => { state.loadingApp = loading }
+  setLoadingApp: (state, loading) => { state.loadingApp = loading },
+  closeDialog: (state, loading) => { state.dialog = { name: null, action: null, params: null, success: null } }
 }
 
 const actions = {
@@ -63,7 +69,7 @@ const actions = {
    * Initializes the application when offline
    */
   initOffline: ({ dispatch }) => {
-    return dispatch('readUser')
+    return dispatch('readLocalUser')
       .then(({ workspaces }) => {
         return dispatch('initWorkspacesDBs', false)
       })

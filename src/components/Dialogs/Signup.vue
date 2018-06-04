@@ -29,7 +29,7 @@
         </div>
       </form>
       <md-dialog-actions>
-        <md-button class="md-primary" @click="setDialog('login')">Login with your account</md-button> 
+        <md-button class="md-primary" @click="setDialog({ name: 'login', action: 'login' })">Login with your account</md-button> 
       </md-dialog-actions>
     </md-dialog>
 </template>
@@ -51,10 +51,10 @@ export default {
     ...mapGetters({dialog: 'getDialog'}),
     showDialog: {
       get () {
-        return this.dialog === 'signup'
+        return this.dialog.name === 'signup'
       },
       set (show) {
-        this.setDialog(show ? 'signup' : null)
+        this.setDialog({ name: show ? this.dialog.name : null })
       }
     }
   },

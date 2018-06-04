@@ -5,11 +5,11 @@
     </md-button>
     <md-menu-content>
       <md-list>
-        <md-list-item @click="setDialog({ name: 'rename-board', action: 'renameBoard' })">
+        <md-list-item @click="$emit('edit')">
           <md-icon>edit</md-icon>
-          <span class="md-list-item-text">Rename</span>
+          <span class="md-list-item-text">Edit</span>
         </md-list-item>
-        <md-list-item @click="setDialog({ name: 'delete-board', action: 'deleteBoard', success: 'Board deleted' })">
+        <md-list-item @click="setDialog({ name: 'delete-note', action: 'deleteNote', success: 'Note deleted', params: { noteID} })">
           <md-icon>delete</md-icon>
           <span class="md-list-item-text">Delete</span>
         </md-list-item>
@@ -20,6 +20,7 @@
 <script>
 import { mapMutations } from 'vuex'
 export default {
+  props: ['noteID'],
   methods: {
     ...mapMutations(['setDialog'])
   }

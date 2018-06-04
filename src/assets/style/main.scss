@@ -43,7 +43,13 @@ body {
   min-width: 90%;
   border-radius: 0px!important;
   min-height: fit-content;
+  overflow-y: scroll;
 }
+
+.md-dialog-container{
+  max-height: 90vh;
+}
+
 .md-drawer .md-list-item-content{
   padding: 0.5em;
 }
@@ -64,6 +70,10 @@ body {
 
 .md-button.md-theme-default{
   color: #747474;
+}
+
+.md-toolbar-section-end, .md-toolbar-section-start{
+  flex: 2;
 }
 
 @media screen and (min-width: 648px){

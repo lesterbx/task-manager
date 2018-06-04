@@ -5,7 +5,7 @@
     </md-button>
     <md-menu-content>
       <md-list>
-        <md-list-item @click="setDialog('create-workspace')">
+        <md-list-item @click="setDialog({ name: 'create-workspace', action: 'createWorkpsace', success: 'Workspace created' })">
           <md-icon>add</md-icon>
           <span class="md-list-item-text">Create Workspace</span>
         </md-list-item>

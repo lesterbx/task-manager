@@ -8,7 +8,7 @@
           Keep track of your projects and organize them in an easy and efficient way.
         </p>
         <div>
-          <md-button class="md-raised md-accent" @click="setDialog('login')">Start Working</md-button>
+          <md-button class="md-raised md-accent" @click="setDialog({ name: 'login', action: 'login' })">Start Working</md-button>
         </div>
       </div>
     </div>

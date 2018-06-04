@@ -1,11 +1,9 @@
 <template>
-  <md-dialog-prompt :md-active.sync="showDialog" 
-      v-model="password"
-      md-title="Enter your password"
-      md-input-placeholder="Password"
-      md-content="You need to enter your password for this action"
-      md-confirm-text="Ok"
-      @md-confirm="$emit('confirm', { password })" />
+  <md-dialog-prompt :md-active.sync="showDialog"
+      v-model="title"
+      md-title="Rename Column"
+      md-input-placeholder="New Title"
+      @md-confirm="$emit('confirm', { title })" />
 </template>
 <script>
 import { mapGetters, mapMutations } from 'vuex'
@@ -13,14 +11,14 @@ export default {
   name: 'create-board',
   data () {
     return {
-      password: ''
+      title: ''
     }
   },
   computed: {
     ...mapGetters({ dialog: 'getDialog' }),
     showDialog: {
       get () {
-        return this.dialog.name === 'password'
+        return this.dialog.name === 'rename-column'
       },
       set (show) {
         !show && this.closeDialog()

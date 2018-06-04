@@ -2,13 +2,13 @@ import PouchDB from 'pouchdb'
 import PouchAuth from 'pouchdb-authentication'
 import CryptoPouch from 'crypto-pouch'
 import PouchDBFind from 'pouchdb-find'
-import { db } from '../config.js'
-import { URL } from '../utils'
+import { db } from '@/config.js'
+import { URL } from '@/utils'
 
 PouchDB.plugin(PouchAuth)
 PouchDB.plugin(CryptoPouch)
 PouchDB.plugin(PouchDBFind)
-// PouchDB.debug.disable()
+PouchDB.debug.disable()
 
 const state = {
   authDB: new PouchDB(URL(db) + '/_users'),

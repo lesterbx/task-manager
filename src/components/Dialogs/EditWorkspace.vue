@@ -6,10 +6,12 @@
         <form action="javascript:void(0)" :class="!edit && !isNew && 'form-read-only'">
           <input type="password" style="display:none">
           <div class="md-layout">
-            <div class="md-layout-item md-size-40 padding-right picture-wrapper">
-              <picture-input v-if="isNew || edit" :prefill="workspace.picture"  @change="pictureSelected" :hideChangeButton="true" size="1" :customStrings="{drag: 'Picture', tap: 'Picture'}" @error="pictureError" :alertOnError="false">
-              </picture-input>
-              <div class="preview-picture" v-if="!isNew && !edit" :style="`background-image: url('${workspace.picture}')`"></div>
+            <div class="md-layout-item md-xsmall-size-100 md-small-size-40">
+              <div class="picture-wrapper">
+                <picture-input v-if="isNew || edit" :prefill="workspace.picture"  @change="pictureSelected" :hideChangeButton="true" size="1" :customStrings="{drag: 'Picture', tap: 'Picture'}" @error="pictureError" :alertOnError="false">
+                </picture-input>
+                <div class="preview-picture" v-if="!isNew && !edit" :style="`background-image: url('${workspace.picture}')`"></div>
+              </div>
             </div>
             <div class="md-layout-item">
               <md-field>
@@ -28,7 +30,7 @@
             </div>
           </div>
           
-          <md-chips v-if="isNew" :md-check-duplicated="true" md-input-type="email" v-model="workspace.users" md-placeholder="User emails, enter and press enter"></md-chips>
+          <md-chips v-if="isNew" :md-check-duplicated="true" md-input-type="text" v-model="workspace.users" md-placeholder="User emails, write and press enter"></md-chips>
           
           <md-divider v-if="isNew"></md-divider>
           <md-field v-if="isNew">
@@ -39,10 +41,10 @@
         </form>
       </div>
       <md-card-actions>
-        <md-button v-if="isNew || edit" @click="reset">Cancel</md-button>
-        <md-button v-if="isNew" class="md-primary" @click="create">Create</md-button>
-        <md-button v-if="!isNew && !edit" class="md-primary" @click="edit = true">edit</md-button>
-        <md-button v-if="!isNew && edit" class="md-primary" @click="save">Save</md-button>
+        <md-button v-if="isNew || edit" @click="closeDialog()">Cancel</md-button>
+        <md-button v-if="isNew" class="md-primary" @click="$emit('confirm', { workspace, password })">Create</md-button>
+        <md-button v-if="!isNew && !edit && currentAdmin" class="md-primary" @click="startEdit">edit</md-button>
+        <md-button v-if="!isNew && edit" class="md-primary" @click="$emit('confirm', { workspace })">Save</md-button>
       </md-card-actions>
   </md-dialog>
 </template>
@@ -67,36 +69,33 @@ export default {
     }
   },
   computed: {
-    ...mapGetters({dialog: 'getDialog', getWorkspace: 'getWorkspace', currentWorkspace: 'getCurrentWorkspace'}),
+    ...mapGetters({dialog: 'getDialog', getWorkspace: 'getWorkspace', currentWorkspace: 'getCurrentWorkspace', user: 'getUser'}),
     showDialog: {
       get () {
-        return this.dialog === 'create-workspace' || this.dialog === 'edit-workspace'
+        return this.dialog.name === 'create-workspace' || this.dialog.name === 'edit-workspace'
       },
       set (show) {
-        this.setDialog(show)
+        !show && this.closeDialog()
       }
     },
     isNew () {
-      return this.dialog === 'create-workspace'
+      return this.dialog.name === 'create-workspace'
+    },
+    currentAdmin () {
+      return this.getWorkspace(this.currentWorkspace).admins.includes(this.user.email)
     }
   },
   mounted () {
-    if (this.dialog === 'edit-workspace') {
+    if (this.dialog.name === 'edit-workspace') {
       this.workspace = { ...this.getWorkspace(this.currentWorkspace) }
     }
   },
   methods: {
-    ...mapMutations(['setDialog', 'setMessage']),
+    ...mapMutations(['closeDialog', 'setMessage', 'setDialog']),
     ...mapActions(['createWorkspace', 'updateWorkspace']),
-    create () {
-      this.createWorkspace({workspace: this.workspace, password: this.password})
-        .then(() => this.setDialog(null))
-        .catch((error) => this.setMessage(error))
-    },
-    save () {
-      this.updateWorkspace(this.workspace)
-        .then(() => this.setDialog(null))
-        .catch((error) => this.setMessage(error))
+    startEdit () {
+      this.setDialog({ ...this.dialog, action: 'updateWorkspace', success: 'Workspace Updated' })
+      this.edit = true
     },
     setID () {
       this.workspace._id = slugify(this.workspace.title, {lower: true})
@@ -106,9 +105,6 @@ export default {
     },
     pictureError ({message}) {
       this.setMessage(message)
-    },
-    reset () {
-      this.setDialog(false)
     }
   }
 }
@@ -117,18 +113,20 @@ export default {
   .md-chip{
     margin-left: 4px!important;
   }
-  .preview-picture{
-    background-size: cover;
-    width:100%;
-    height: 100%;
-  }
   .picture-wrapper{
     display: flex;
     align-items: center;
+    width: 30%;
+    margin: auto;
+  }
+  .preview-picture{
+    background-size: cover;
+    width:100%;
+    padding-top: 67%;
   }
   .picture-inner-text{
     color: #666666;
-    font-size: 3em!important;
+    font-size: 10em!important;
   }
   .md-field.md-has-textarea:not(.md-autogrow):after, .md-field.md-has-textarea:not(.md-autogrow):before{
     border-left: none;
@@ -151,5 +149,14 @@ export default {
   }
   .md-field.md-theme-default.md-disabled::after{
     background-image: none!important;
+  }
+  @media screen and (min-width: 600px){
+    .picture-wrapper{
+      width: 100%;
+      padding-right: 1em;
+    }
+    .picture-inner-text{
+      font-size: 4em!important;
+    }
   }
 </style>

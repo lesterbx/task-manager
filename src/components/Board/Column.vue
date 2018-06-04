@@ -1,8 +1,8 @@
 <template>
-  <md-card class="column no-margin animated fadeIn">
+  <md-card class="column no-margin">
     <md-card-header class="column-header">
       <h3 class="no-margin">{{column.title}}</h3>
-      <column-menu></column-menu>
+      <column-menu :columnID="this.column._id"></column-menu>
     </md-card-header>
     <md-divider></md-divider>
     <div>

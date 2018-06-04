@@ -13,14 +13,14 @@
         </md-field>
       </div>
       <md-card-actions>
-        <md-button @click="reset">Cancel</md-button>
-        <md-button type="submit" class="md-primary" @click="add">Add</md-button>
+        <md-button @click="closeDialog">Cancel</md-button>
+        <md-button type="submit" class="md-primary" @click="$emit('confirm', { email, password })">Add</md-button>
       </md-card-actions>
     </form>
   </md-dialog>
 </template>
 <script>
-import { mapGetters, mapMutations, mapActions } from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
 export default {
   name: 'create-board',
   data () {
@@ -33,28 +33,15 @@ export default {
     ...mapGetters({ dialog: 'getDialog' }),
     showDialog: {
       get () {
-        return this.dialog === 'add-user'
+        return this.dialog.name === 'add-user'
       },
       set (show) {
-        this.setDialog(show ? 'add-user' : null)
+        !show && this.closeDialog()
       }
     }
   },
   methods: {
-    ...mapMutations(['setDialog', 'setMessage']),
-    ...mapActions(['addUserToWorkspace']),
-    reset () {
-      this.setDialog(null)
-      this.email = ''
-      this.password = ''
-    },
-    add () {
-      this.addUserToWorkspace({ email: this.email, password: this.password, workspaceID: this.$route.params.id })
-        .then(() => {
-          this.setMessage('User added succesfully')
-          this.setDialog(null)
-        })
-    }
+    ...mapMutations(['closeDialog'])
   }
 }
 </script>

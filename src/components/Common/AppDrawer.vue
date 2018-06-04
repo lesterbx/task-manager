@@ -66,7 +66,7 @@ export default {
     },
     createWorkspace () {
       this.$emit('close')
-      this.setDialog('create-workspace')
+      this.setDialog({ name: 'create-workspace', action: 'createWorkspace', success: 'Workspace created' })
     },
     logout () {
       this.logOut()

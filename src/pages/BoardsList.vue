@@ -15,7 +15,7 @@
       </md-list>
       <md-divider></md-divider>
       <md-list class="no-padding">
-        <md-list-item @click="setDialog('create-board')">
+        <md-list-item @click="setDialog({ name: 'create-board', action: 'createBoard' })">
           <md-avatar class="md-avatar-icon md-accent md-small">
             <md-icon>add</md-icon>
           </md-avatar>

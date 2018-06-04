@@ -24,7 +24,7 @@ export default {
   },
   methods: {
     ...mapActions(['readBoardContent', 'createColumn', 'moveColumn']),
-    ...mapMutations(['setCurrentBoard', 'setMessage']),
+    ...mapMutations(['setCurrentBoard', 'setMessage', 'setColumns', 'setNotes']),
     addColumn (title) {
       this.createColumn({ boardID: this.$route.params.boardID, title: title })
         .catch(error => this.setMessage(error.reason))
@@ -37,6 +37,10 @@ export default {
   created () {
     this.readBoardContent(this.$route.params.boardID)
     this.setCurrentBoard(this.$route.params.boardID)
+  },
+  beforeDestroy () {
+    this.setColumns({})
+    this.setNotes({})
   }
 }
 </script>

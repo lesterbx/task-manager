@@ -1,5 +1,5 @@
-import { promisifyValidator } from '../utils'
-import { validateUser } from '../utils/validators'
+import { promisifyValidator } from '@/utils'
+import { validateUser } from '@/utils/validators'
 
 const state = {
   /**
@@ -67,7 +67,7 @@ const actions = {
   signUp: ({ state, dispatch, commit, getters }, { email, password, ...metadata }) => {
     return dispatch('checkConnection')
       .then(() => promisifyValidator(validateUser, { name: email, password, ...metadata, workspaces: [] }))
-      .then(() => getters.getAuthDB.signUp(email, password, { ...metadata, workspaces: [] }))
+      .then(() => getters.getAuthDB.signUp(email, password, { metadata: { ...metadata, workspaces: [] } }))
       .then(() => dispatch('login', { email, password }))
       .catch(error => (error.status === 409)
         ? Promise.reject('The email is already in use by some user')
@@ -77,18 +77,22 @@ const actions = {
    * Logs in a new user
    */
   login: ({ state, commit, dispatch, getters }, { email, password }) => {
-    return dispatch('checkConnection')
-      .then(() => getters.getAuthDB.logIn(email, password))
-      .then(() => {
-        commit('setAuthenticated', true)
-        return dispatch('init')
-      })
-      .catch((error) => (error.status === 0)
-        ? Promise.reject('No connection with the server')
-        : Promise.reject(error.reason))
+    if (email === '' || password === '') {
+      return Promise.reject('Enter your email and password')
+    } else {
+      return dispatch('checkConnection')
+        .then(() => getters.getAuthDB.logIn(email, password))
+        .then(() => {
+          commit('setAuthenticated', true)
+          return dispatch('init')
+        })
+        .catch((error) => (error.status === 0)
+          ? Promise.reject('No connection with the server')
+          : Promise.reject(error.reason))
+    }
   },
   /**
-   * Logs out the user, removes all the local data
+   * Logs out the user, r3emoves all the local data
    */
   logOut: ({ commit, getters, dispatch }) => {
     dispatch('removeWorkspacesDBs')
@@ -106,7 +110,7 @@ const actions = {
   /**
    * Returns a user from the local storage
    */
-  readUser: ({ commit }) => {
+  readLocalUser: ({ commit }) => {
     let localUser = JSON.parse(localStorage.getItem('task-manager-user'))
     if (localUser) {
       commit('setUser', localUser)

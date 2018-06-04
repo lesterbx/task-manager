@@ -1,13 +1,16 @@
 <template>
   <div class="md-toolbar-row">
     <div class="md-toolbar-section-start" :class="!authenticated && 'padding-left'">
-      <md-button v-if="authenticated" @click="$emit('show-menu')" class="md-icon-button">
+      <md-button v-if="authenticated && $route.name !== 'Board'" @click="$emit('show-menu')" class="md-icon-button">
         <md-icon>menu</md-icon>
+      </md-button>
+      <md-button v-if="$route.name === 'Board'" @click="$router.push(`/workspace/${$route.params.workspaceID}`)" class="md-icon-button">
+        <md-icon>arrow_back</md-icon>
       </md-button>
       <h2>{{title}}</h2>
     </div>
     <div class="md-toolbar-section-end">
-      <md-button v-if="$route.name == 'Home' && !authenticated" @click="setDialog('login')" class="margin-right">
+      <md-button v-if="$route.name === 'Home' && !authenticated" @click="setDialog({ name: 'login', action: 'login' })" class="margin-right">
         Sign in
       </md-button>
       <home-menu v-if="$route.name === 'Home' && authenticated" ></home-menu>

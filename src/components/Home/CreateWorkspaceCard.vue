@@ -1,5 +1,5 @@
 <template>
-  <md-card md-with-hover @click.native="setDialog('create-workspace')">
+  <md-card md-with-hover @click.native="setDialog({ name: 'create-workspace', action: 'createWorkspace' })">
     <md-ripple>
       <md-card-area>
         <md-card-header>

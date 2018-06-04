@@ -2,36 +2,28 @@
   <md-dialog-confirm
     :md-active.sync="showDialog"
     md-title="Delete board"
-    md-content="Are you sure that you want to remove this board?"
+    md-content="Are you sure that you want to remove this board? All the content will be removed."
     md-confirm-text="Yes"
     md-cancel-text="No"
-    @md-confirm="remove" />
+    @md-confirm="$emit('confirm')" />
 </template>
 <script>
-import { mapGetters, mapMutations, mapActions } from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
 export default {
   name: 'create-board',
   computed: {
     ...mapGetters({ dialog: 'getDialog', currentWorkspace: 'getCurrentWorkspace' }),
     showDialog: {
       get () {
-        return this.dialog === 'delete-board'
+        return this.dialog.name === 'delete-board'
       },
       set (show) {
-        this.setDialog(show ? 'delete-board' : null)
+        !show && this.closeDialog()
       }
     }
   },
   methods: {
-    ...mapMutations(['setDialog', 'setMessage']),
-    ...mapActions(['deleteBoard']),
-    remove () {
-      this.deleteBoard()
-        .then(() => {
-          this.setMessage('Board deleted')
-          this.$router.push('/workspace/' + this.currentWorkspace)
-        })
-    }
+    ...mapMutations(['closeDialog'])
   }
 }
 </script>
