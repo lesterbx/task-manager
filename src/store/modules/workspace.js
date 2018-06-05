@@ -231,28 +231,36 @@ const actions = {
       })
   },
   /**
-   * Action trigerred when there is a change in the current workspace database
+   * Function triggered when there is a change during the replication
    */
-  workspaceChange: ({ getters, state, commit, dispatch }, change) => {
-    change = getters.isOnline ? change.change : change
-    console.log(change)
-    change.docs.forEach((doc) => {
-      if (doc._deleted) {
-        if (getters.getBoard(doc._id)) commit('removeBoard', doc._id)
-        if (getters.getColumn(doc._id)) commit('removeColumn', doc._id)
-        if (getters.getNote(doc._id)) commit('removeNote', doc._id)
-      } else {
-        if (doc.type === 'workspace') {
-          commit('setWorkspace', doc)
-        } else if (doc.type === 'board') {
-          commit('setBoard', doc)
-        } else if (doc.type === 'column') {
-          commit('setColumn', doc)
-        } else if (doc.type === 'note') {
-          commit('setNote', doc)
-        }
+  syncChange: ({ dispatch }, { change }) => {
+    change.docs.forEach((doc) => dispatch('handleChange', doc))
+  },
+  /**
+   * Function trigger when there is a change on offline
+   */
+  docChange: ({ dispatch }, { doc }) => {
+    dispatch('handleChange', doc)
+  },
+  /**
+   * Handle a change in a document
+   */
+  handleChange: ({ getters, state, commit, dispatch }, doc) => {
+    if (doc._deleted) {
+      if (getters.getBoard(doc._id)) commit('removeBoard', doc._id)
+      if (getters.getColumn(doc._id)) commit('removeColumn', doc._id)
+      if (getters.getNote(doc._id)) commit('removeNote', doc._id)
+    } else {
+      if (doc.type === 'workspace') {
+        commit('setWorkspace', doc)
+      } else if (doc.type === 'board') {
+        commit('setBoard', doc)
+      } else if (doc.type === 'column') {
+        commit('setColumn', doc)
+      } else if (doc.type === 'note') {
+        commit('setNote', doc)
       }
-    })
+    }
   },
   /**
    * Runs the pending action
