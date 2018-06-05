@@ -68,7 +68,7 @@ const actions = {
   /**
    * Initializes the application when offline
    */
-  initOffline: ({ dispatch }) => {
+  initOffline: ({ dispatch, commit }) => {
     return dispatch('readLocalUser')
       .then(({ workspaces }) => {
         commit('setAuthenticated', true)
