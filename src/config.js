@@ -4,9 +4,9 @@ const db = {
   port: 443
 }
 const server = {
-  protocol: 'http',
-  host: '127.0.0.1',
-  port: 3000
+  protocol: 'https',
+  host: 'server.taskmanager.ml',
+  port: 80
 }
 
 export { db }
