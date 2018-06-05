@@ -91,9 +91,11 @@ const actions = {
     commit('setOnline', navigator.onLine)
     window.addEventListener('online', () => {
       commit('setOnline', navigator.onLine)
+      dispatch('init')
     })
     window.addEventListener('offline', () => {
       commit('setOnline', navigator.onLine)
+      dispatch('init')
     })
   },
   /**
