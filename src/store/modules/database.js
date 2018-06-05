@@ -36,11 +36,11 @@ const actions = {
   /**
    * Initializes the workspaces databases
    */
-  initWorkspacesDBs: ({ commit, getters, dispatch }, workspaces) => {
+  initWorkspacesDBs: ({ commit, getters, dispatch }, { workspaces, online }) => {
     return Promise.all(workspaces.map((workspaceID) => {
       let db = new PouchDB(workspaceID)
       commit('setWorkspaceDB', { workspaceID, db })
-      return dispatch('fetchDB', db)
+      return online ? dispatch('fetchDB', db) : Promise.resolve()
     }))
   },
   /**

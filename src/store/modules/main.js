@@ -53,7 +53,7 @@ const actions = {
       .then((email) => dispatch('fetchUser', email))
       .then(({ workspaces }) => {
         commit('setAuthenticated', true)
-        return dispatch('initWorkspacesDBs', workspaces)
+        return dispatch('initWorkspacesDBs', { workspaces, online: true })
       })
       .then(() => dispatch('readWorkspacesPreview'))
       .then(() => {
@@ -73,7 +73,7 @@ const actions = {
       .then(({ workspaces }) => {
         console.log(workspaces)
         commit('setAuthenticated', true)
-        return dispatch('initWorkspacesDBs', workspaces)
+        return dispatch('initWorkspacesDBs', { workspaces, online: false })
       })
       .then(() => dispatch('readWorkspacesPreview'))
       .then(() => {
