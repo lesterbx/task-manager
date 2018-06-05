@@ -71,10 +71,16 @@ const actions = {
   initOffline: ({ dispatch }) => {
     return dispatch('readLocalUser')
       .then(({ workspaces }) => {
-        return dispatch('initWorkspacesDBs', false)
+        commit('setAuthenticated', true)
+        return dispatch('initWorkspacesDBs', workspaces)
       })
-      .catch((error) => {
-        console.log('error', error)
+      .then(() => dispatch('readWorkspacesPreview'))
+      .then(() => {
+        commit('setLoadingApp', false)
+        return Promise.resolve()
+      })
+      .catch(() => {
+        commit('setLoadingApp', false)
         return Promise.resolve()
       })
   },
