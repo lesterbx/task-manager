@@ -138,9 +138,7 @@ const actions = {
    * Makes all the necessary actions to close a workspace
    */
   closeWorkspace: ({ dispatch, commit }, workspaceID) => {
-    if (getters.isOnline) {
-      dispatch('unsyncWorkspaceDB', workspaceID)
-    }
+    dispatch('unsyncWorkspaceDB', workspaceID)
     commit('setBoards', {})
     commit('setColumns', {})
     commit('setNotes', {})
