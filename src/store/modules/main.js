@@ -71,6 +71,7 @@ const actions = {
   initOffline: ({ dispatch, commit }) => {
     return dispatch('readLocalUser')
       .then(({ workspaces }) => {
+        console.log(workspaces)
         commit('setAuthenticated', true)
         return dispatch('initWorkspacesDBs', workspaces)
       })
