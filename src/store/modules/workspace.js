@@ -123,11 +123,13 @@ const actions = {
   /**
    * Makes all the necessary actions to open a workspace
    */
-  openWorkspace: ({ dispatch, commit }, workspaceID) => {
+  openWorkspace: ({ getters, dispatch, commit }, workspaceID) => {
     commit('setLoadingWorkspace', true)
     commit('setCurrentWorkspace', workspaceID)
     dispatch('syncWorkspaceDB', workspaceID)
-    dispatch('readWorkspaceUsers', workspaceID)
+    if (getters.isOnline) {
+      dispatch('readWorkspaceUsers', workspaceID)
+    }
     dispatch('readWorkspaceBoards', workspaceID)
       .then(() => commit('setLoadingWorkspace', false))
       .catch((error) => commit('setMessage', error.reason))
@@ -136,7 +138,9 @@ const actions = {
    * Makes all the necessary actions to close a workspace
    */
   closeWorkspace: ({ dispatch, commit }, workspaceID) => {
-    dispatch('unsyncWorkspaceDB', workspaceID)
+    if (getters.isOnline) {
+      dispatch('unsyncWorkspaceDB', workspaceID)
+    }
     commit('setBoards', {})
     commit('setColumns', {})
     commit('setNotes', {})

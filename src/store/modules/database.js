@@ -59,13 +59,12 @@ const actions = {
    * Syncronizes a local database with the remote one, will be executed when a workspace in opened
    */
   syncWorkspaceDB: ({ getters, commit, dispatch }, workspaceID) => {
-    commit('setSyncHandler', {
-      workspaceID,
-      handler: getters.getWorkspaceDB(workspaceID)
-        .sync(`${getters.couchURL}/${workspaceID}`, { live: true, retry: true, include_docs: true })
-        .on('change', (change) => dispatch('workspaceChange', change))
-        .on('error', (error) => commit('setMessage', error))
-    })
+    let db = getters.getWorkspaceDB(workspaceID)
+    db = !getters.isOnline ? db : db.sync(`${getters.couchURL}/${workspaceID}`, { live: true, retry: true, include_docs: true })
+    let handler = db
+      .on('change', (change) => dispatch('workspaceChange', change))
+      .on('error', (error) => console.log(error))
+    commit('setSyncHandler', { workspaceID, handler })
   },
   /**
    * Stops the syncronization with the remote database
