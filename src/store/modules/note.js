@@ -6,7 +6,8 @@ const state = {
 }
 
 const getters = {
-  getColumnNotes: (state) => (columnID) => Object.values(state.notes).filter((note) => note.columnID === columnID)
+  getColumnNotes: (state) => (columnID) => Object.values(state.notes).filter((note) => note.columnID === columnID),
+  getNote: (state) => (noteID) => state.notes[noteID]
 }
 
 const mutations = {
