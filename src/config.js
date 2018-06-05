@@ -6,7 +6,7 @@ const db = {
 const server = {
   protocol: 'https',
   host: 'server.taskmanager.ml',
-  port: 80
+  port: 443
 }
 
 export { db }
