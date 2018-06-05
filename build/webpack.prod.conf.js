@@ -103,7 +103,8 @@ const webpackConfig = merge(baseWebpackConfig, {
       cacheId: 'task-manager',
       filename: 'service-worker.js',
       minify: true,
-      stripPrefix: 'dist/'
+      stripPrefix: 'dist/',
+      staticFileGlobsIgnorePatterns: [/\.map$/]
     })
   ]
 })
