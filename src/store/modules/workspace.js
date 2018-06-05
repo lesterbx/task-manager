@@ -96,7 +96,8 @@ const actions = {
     // Prepares the workspace object
     workspace = { ...workspace, users: [...workspace.users, getters.getUser.email], admins: [getters.getUser.email], type: 'workspace', timestamp: Date.now() }
     // Validates the object
-    return promisifyValidator(validateWorkspace, workspace)
+    return dispatch('checkConnection')
+      .then(() => promisifyValidator(validateWorkspace, workspace))
       // Checks if the workspace already exists
       .then(() => workspaceNotExist(getters.couchURL, workspace._id))
       // Posts the workspace creation request to the node server

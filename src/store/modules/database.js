@@ -60,7 +60,9 @@ const actions = {
    */
   syncWorkspaceDB: ({ getters, commit, dispatch }, workspaceID) => {
     let db = getters.getWorkspaceDB(workspaceID)
-    db = !getters.isOnline ? db : db.sync(`${getters.couchURL}/${workspaceID}`, { live: true, retry: true, include_docs: true })
+    db = getters.isOnline
+      ? db.sync(`${getters.couchURL}/${workspaceID}`, { live: true, retry: true, include_docs: true })
+      : db.changes({ since: 'now', live: true, include_docs: true })
     let handler = db
       .on('change', (change) => dispatch('workspaceChange', change))
       .on('error', (error) => console.log(error))
