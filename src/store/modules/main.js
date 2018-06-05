@@ -87,7 +87,7 @@ const actions = {
   /**
    * Sets the connection listeners
    */
-  setConnectionListeners: ({ commit }) => {
+  setConnectionListeners: ({ commit, dispatch }) => {
     commit('setOnline', navigator.onLine)
     window.addEventListener('online', () => {
       commit('setOnline', navigator.onLine)
