@@ -234,7 +234,9 @@ const actions = {
     console.log(change)
     change.docs.forEach((doc) => {
       if (doc._deleted) {
-        this.dispatch('reloadCurrentWorkspace')
+        if(getters.getBoard(doc._id)) commit('removeBoard', doc._id)
+        if(getters.getColumn(doc._id)) commit('removeColumn', doc._id)
+        if(getters.getNote(doc._id)) commit('removeNote', doc._id)
       } else {
         if (doc.type === 'workspace') {
           commit('setWorkspace', doc)
