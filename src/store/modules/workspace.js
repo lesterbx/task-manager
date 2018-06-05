@@ -233,7 +233,8 @@ const actions = {
   /**
    * Action trigerred when there is a change in the current workspace database
    */
-  workspaceChange: ({ getters, state, commit, dispatch }, { change }) => {
+  workspaceChange: ({ getters, state, commit, dispatch }, change) => {
+    change = getters.isOnline ? change.change : change
     console.log(change)
     change.docs.forEach((doc) => {
       if (doc._deleted) {
