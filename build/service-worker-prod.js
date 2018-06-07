@@ -52,22 +52,4 @@
         });
     }
   });
-
-  window.addEventListener('error', function (event) {
-    var msg = {
-      message: event.message,
-      filename: event.filename,
-      lineno: event.lineno,
-      stack: event.error && event.error.stack
-    };
-    console.log(msg)
-  });
-
-  window.addEventListener('unhandledrejection', function (event) {
-   console.log(event.reason)
-    if (/Quota exceeded/i.test(event.reason)) {
-      // maybe clean some cache here
-    }
-  });
-
 })();

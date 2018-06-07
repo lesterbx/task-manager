@@ -26,7 +26,7 @@
       <div class="animated fadeInRight">
         <h2 class="no-margin">Work Offline</h2>
         <p> 
-          Access your workspaces even you are not connected.
+          Access your workspaces even when you are not connected.
         </p>
       </div>
     </div>
