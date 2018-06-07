@@ -237,7 +237,7 @@ const actions = {
     change.docs.forEach((doc) => dispatch('handleChange', doc))
   },
   /**
-   * Function trigger when there is a change on offline
+   * Function triggered when there is a change on offline
    */
   docChange: ({ dispatch }, { doc }) => {
     dispatch('handleChange', doc)
