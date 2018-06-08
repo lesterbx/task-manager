@@ -3,17 +3,35 @@ import uuid from 'uuid/v1'
 import { updateDocsPositions } from '@/utils'
 
 const state = {
+  /**
+   * All the columns fro a board
+   */
   columns: {}
 }
 
 const getters = {
+  /**
+   * Get all the columns
+   */
   getColumns: (state) => state.columns,
+  /**
+   * Get a single board given its ID
+   */
   getColumn: (state) => (columnID) => state.columns[columnID]
 }
 
 const mutations = {
+  /**
+   * Set a single column
+   */
   setColumn: (state, column) => { Vue.set(state.columns, column._id, column) },
+  /**
+   * Set all the columns
+   */
   setColumns: (state, columns) => { state.columns = columns },
+  /**
+   * Remove a column from the state
+   */
   removeColumn: (state, columnID) => { Vue.delete(state.columns, columnID) }
 }
 

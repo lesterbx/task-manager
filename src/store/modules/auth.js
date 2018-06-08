@@ -42,7 +42,7 @@ const actions = {
   /**
    * Checks if the user has a session opened and resolves with the email if it has
    */
-  getSession: ({ commit, dispatch, getters }) => {
+  getSession: ({ getters }) => {
     return getters.getAuthDB.getSession()
       .then(({ userCtx }) => userCtx.name !== null
         ? Promise.resolve(userCtx.name)
@@ -64,7 +64,7 @@ const actions = {
   /**
    * Creates a new user
    */
-  signUp: ({ state, dispatch, commit, getters }, { email, password, ...metadata }) => {
+  signUp: ({ dispatch, commit, getters }, { email, password, ...metadata }) => {
     return dispatch('checkConnection')
       .then(() => promisifyValidator(validateUser, { name: email, password, ...metadata, workspaces: [] }))
       .then(() => getters.getAuthDB.signUp(email, password, { metadata: { ...metadata, workspaces: [] } }))
@@ -76,7 +76,7 @@ const actions = {
   /**
    * Logs in a new user
    */
-  login: ({ state, commit, dispatch, getters }, { email, password }) => {
+  login: ({ commit, dispatch, getters }, { email, password }) => {
     if (email === '' || password === '') {
       return Promise.reject('Enter your email and password')
     } else {
@@ -104,7 +104,7 @@ const actions = {
   /**
    * Stores a user in the local storage
    */
-  storeUser: (ctx, user) => {
+  storeUser: (_, user) => {
     window.localStorage.setItem('task-manager-user', JSON.stringify(user))
   },
   /**

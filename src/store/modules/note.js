@@ -2,17 +2,35 @@ import Vue from 'vue'
 import uuid from 'uuid/v1'
 
 const state = {
+  /**
+   * Object with the current notes
+   */
   notes: {}
 }
 
 const getters = {
+  /**
+   * Returns the notes of a column
+   */
   getColumnNotes: (state) => (columnID) => Object.values(state.notes).filter((note) => note.columnID === columnID),
+  /**
+   * Returns a single note
+   */
   getNote: (state) => (noteID) => state.notes[noteID]
 }
 
 const mutations = {
+  /**
+   * Sets the content of a note
+   */
   setNote: (state, note) => { Vue.set(state.notes, note._id, note) },
+  /**
+   * Sets all the notes
+   */
   setNotes: (state, notes) => { state.notes = notes },
+  /**
+   * Removes a note from the state
+   */
   removeNote: (State, noteID) => { Vue.delete(state.notes, noteID) }
 }
 

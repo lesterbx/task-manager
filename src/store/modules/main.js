@@ -2,36 +2,85 @@ import { db, server } from '@/config.js'
 import { URL } from '@/utils'
 
 const state = {
+  /**
+   * Indicates if there is connection
+   */
   online: false,
+  /**
+   * Url for the couchDB database
+   */
   couchURL: URL(db),
+  /**
+   * URL for the axuiliar server
+   */
   serverURL: URL(server),
-  workspaces: {},
+  /**
+   * Sets the message, if there is a message it will be shown in a snackbar
+   */
   message: '',
+  /**
+   * Boolean to tell if the app is loading
+   */
   loadingApp: true,
+  /**
+   * Object for handling dialogs
+   */
   dialog: {
-    name: null,
-    action: null,
-    params: null,
-    success: null
+    name: null, // Name of the dialog
+    action: null, // Action to be triggered after the confirmation of the dialog
+    params: null, // Params to pass to the action
+    success: null // Message to show after the action success
   }
 }
 
 const getters = {
+  /**
+   * Returns the online state
+   */
   isOnline: (state) => state.online,
+  /**
+   * Returns the current dialog object
+   */
   getDialog: (state) => state.dialog,
+  /**
+   * Returns the current message
+   */
   getMessage: (state) => state.message,
+  /**
+   * Returns the url for the couchDB databse
+   */
   couchURL: (state) => state.couchURL,
+  /**
+   * Returns the url for the server
+   */
   serverURL: (state) => state.serverURL,
+  /**
+   * Returns the loading app boolean
+   */
   getLoadingApp: (state) => state.loadingApp
 }
 
 const mutations = {
+  /**
+   * Sets the online state
+   */
   setOnline: (state, online) => { state.online = online },
-  initialize: (state) => { state.initialized = true },
+  /**
+   * Sets the dialog object
+   */
   setDialog: (state, dialog) => { state.dialog = dialog },
+  /**
+   * Sets the app message
+   */
   setMessage: (state, message) => { state.message = message },
+  /**
+   * Sets the loading app boolean
+   */
   setLoadingApp: (state, loading) => { state.loadingApp = loading },
-  closeDialog: (state, loading) => { state.dialog = { name: null, action: null, params: null, success: null } }
+  /**
+   * Restes the dialog object
+   */
+  closeDialog: (state) => { state.dialog = { name: null, action: null, params: null, success: null } }
 }
 
 const actions = {

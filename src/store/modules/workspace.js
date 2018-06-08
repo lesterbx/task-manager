@@ -239,7 +239,7 @@ const actions = {
   /**
    * Function triggered when there is a change on offline
    */
-  docChange: ({ dispatch }, { doc }) => {
+  dbChange: ({ dispatch }, { doc }) => {
     dispatch('handleChange', doc)
   },
   /**

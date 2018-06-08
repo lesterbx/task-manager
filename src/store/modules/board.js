@@ -3,20 +3,47 @@ import slugify from 'slugify'
 import router from '@/router'
 
 const state = {
+  /**
+   * Current workspace boards
+   */
   boards: {},
+  /**
+   * ID of the current opened board
+   */
   currentBoard: ''
 }
 
 const getters = {
+  /**
+   * Get all the boards
+   */
   getBoards: (state) => state.boards,
+  /**
+   * Get a single board given its ID
+   */
   getBoard: (state) => (boardID) => state.boards[boardID],
+  /**
+   * Get the current opened board
+   */
   getCurrentBoard: (state) => state.currentBoard
 }
 
 const mutations = {
+  /**
+   * Set the current opened board
+   */
   setCurrentBoard: (state, board) => { Vue.set(state, 'currentBoard', board) },
+  /**
+   * Set all the baords
+   */
   setBoards: (state, boards) => { Vue.set(state, 'boards', boards) },
+  /**
+   * Set a single board
+   */
   setBoard: (state, board) => { Vue.set(state.boards, board._id, board) },
+  /**
+   * Remove a board from the state
+   */
   removeBoard: (state, boardID) => { Vue.delete(state.boards, boardID) }
 }
 
@@ -24,7 +51,7 @@ const actions = {
   /**
    * Create a new board
    */
-  createBoard: ({ getters, commit, dispatch }, { title }) => {
+  createBoard: ({ getters }, { title }) => {
     if (title === '') {
       return Promise.reject('Enter a title')
     } else {
@@ -69,7 +96,7 @@ const actions = {
   /**
    * Read all de boards from a workspace and stores them in the store.
    */
-  readWorkspaceBoards: ({ getters, commit }, workspaceID) => {
+  readWorkspaceBoards: ({ getters, commit }) => {
     return getters.getCurrentDB.query('workspace/boards', { include_docs: true })
       .then(({ rows }) => {
         rows.forEach(({ doc }) => commit('setBoard', doc))
@@ -79,7 +106,7 @@ const actions = {
   /**
    * Read the columns and notes for a board
    */
-  readBoardContent: ({ getters, commit, dispatch }, boardID) => {
+  readBoardContent: ({ getters, commit }, boardID) => {
     return getters.getCurrentDB.query('workspace/boardContent', { include_docs: true, key: boardID })
       .then(({ rows }) => {
         rows.forEach(({ doc }) => doc.type === 'column' ? commit('setColumn', doc) : commit('setNote', doc))
