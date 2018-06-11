@@ -31,7 +31,7 @@ const mutations = {
   /**
    * Removes a note from the state
    */
-  removeNote: (State, noteID) => { Vue.delete(state.notes, noteID) }
+  removeNote: (state, noteID) => { Vue.delete(state.notes, noteID) }
 }
 
 const actions = {
@@ -53,7 +53,7 @@ const actions = {
   /**
    * UPdates the text of a note
    */
-  updateNote: ({ getters, dispatch }, { noteID, text }) => {
+  updateNote: ({ getters }, { noteID, text }) => {
     let db = getters.getCurrentDB
     return db.get(noteID)
       .then((noteDoc) => db.put({ ...noteDoc, text, timestamp: Date.now() }))

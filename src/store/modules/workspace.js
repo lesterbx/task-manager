@@ -92,7 +92,7 @@ const actions = {
   /**
    * Creates a new workspace
    */
-  createWorkspace: ({ dispatch, getters, commit }, { workspace, password }) => {
+  createWorkspace: ({ dispatch, getters }, { workspace, password }) => {
     // Prepares the workspace object
     workspace = { ...workspace, users: [...workspace.users, getters.getUser.email], admins: [getters.getUser.email], type: 'workspace', timestamp: Date.now() }
     // Validates the object
@@ -115,7 +115,7 @@ const actions = {
   /**
    * Updates the information fo a workspace
    */
-  updateWorkspace: ({ getters }, workspace) => {
+  updateWorkspace: ({ getters }, { workspace }) => {
     let db = getters.getCurrentDB
     return db.get(workspace._id)
       .then((workspaceDoc) => db.put({ ...workspaceDoc, ...workspace, timestamp: Date.now() }))
@@ -160,9 +160,9 @@ const actions = {
     )
   },
   /**
-   * Reads the information document for a given workspace and stores it on the state
+   * Reads the information document for a given workspace and stores it in the state
    */
-  readWorkspacePreview: ({ getters, dispatch, commit }, workspaceID) => {
+  readWorkspacePreview: ({ getters, commit }, workspaceID) => {
     return getters.getWorkspaceDB(workspaceID).get(workspaceID)
       .then((workspace) => {
         commit('setWorkspace', workspace)
@@ -173,7 +173,7 @@ const actions = {
   /**
    * Reads the full information for the current workpsace users
    */
-  readWorkspaceUsers: ({ getters, commit, dispatch }, workspaceID) => {
+  readWorkspaceUsers: ({ getters, dispatch }, workspaceID) => {
     return Promise.all(getters.getWorkspace(workspaceID).users.map((email) => dispatch('readWorkspaceUser', email)))
   },
   /**
@@ -189,7 +189,7 @@ const actions = {
   /**
    * Sends the request to the server to add a new user to the workspace
    */
-  addUserToWorkspace: ({ getters, commit, dispatch }, { email, password }) => {
+  addUserToWorkspace: ({ getters, dispatch }, { email, password }) => {
     return axios.post(`${getters.serverURL}/workspace/${getters.getCurrentWorkspace}/user`, { email: email }, { headers: { auth: `${getters.getUser.email}:${password}` } })
       .then(() => {
         dispatch('readWorkspaceUsers', getters.getCurrentWorkspace)
@@ -200,7 +200,7 @@ const actions = {
   /**
    * Sends the request to the server to add a new admin to the workspace
    */
-  addAdminToWorkspace: ({ getters, commit, dispatch }, { email, password }) => {
+  addAdminToWorkspace: ({ getters, dispatch }, { email, password }) => {
     return axios.post(`${getters.serverURL}/workspace/${getters.getCurrentWorkspace}/admin`, { email: email }, { headers: { auth: `${getters.getUser.email}:${password}` } })
       .then(() => {
         dispatch('readWorkspaceUsers', getters.getCurrentWorkspace)
@@ -245,7 +245,7 @@ const actions = {
   /**
    * Handle a change in a document
    */
-  handleChange: ({ getters, state, commit, dispatch }, doc) => {
+  handleChange: ({ getters, commit }, doc) => {
     if (doc._deleted) {
       if (getters.getBoard(doc._id)) commit('removeBoard', doc._id)
       if (getters.getColumn(doc._id)) commit('removeColumn', doc._id)
