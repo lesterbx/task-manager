@@ -1,9 +1,9 @@
 <template>
   <md-dialog :md-active.sync="showDialog" :md-fullscreen="false">
       <div class="padding margin animated fadeIn" action="javascript:void(0)" autocomplete="nope">
-        <h3 v-if="isNew" class="text-center">Create workspace</h3>
+        <h3 v-if="isNew && online" class="text-center">Create workspace</h3>
         <h3 v-if="edit" class="text-center">Edit workspace</h3>
-        <form action="javascript:void(0)" :class="!edit && !isNew && 'form-read-only'">
+        <form v-if="edit || !isNew || (isNew && online)" action="javascript:void(0)" :class="!edit && !isNew && 'form-read-only'">
           <input type="password" style="display:none">
           <div class="md-layout">
             <div class="md-layout-item md-xsmall-size-100 md-small-size-40">
@@ -39,10 +39,16 @@
             <span class="md-helper-text">Enter your password for security</span>
           </md-field>
         </form>
+        <md-empty-state
+          v-else
+          md-icon="cloud_off"
+          md-label="No connection"
+          md-description="Sorry, you need connection to create a workspace">
+        </md-empty-state>
       </div>
       <md-card-actions>
         <md-button v-if="isNew || edit" @click="closeDialog()">Cancel</md-button>
-        <md-button v-if="isNew" class="md-primary" @click="$emit('confirm', { workspace, password })">Create</md-button>
+        <md-button v-if="isNew && online" class="md-primary" @click="$emit('confirm', { workspace, password })">Create</md-button>
         <md-button v-if="!isNew && !edit && currentAdmin" class="md-primary" @click="startEdit">edit</md-button>
         <md-button v-if="!isNew && edit" class="md-primary" @click="$emit('confirm', { workspace })">Save</md-button>
       </md-card-actions>
@@ -69,7 +75,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters({dialog: 'getDialog', getWorkspace: 'getWorkspace', currentWorkspace: 'getCurrentWorkspace', user: 'getUser'}),
+    ...mapGetters({dialog: 'getDialog', getWorkspace: 'getWorkspace', currentWorkspace: 'getCurrentWorkspace', user: 'getUser', online: 'isOnline'}),
     showDialog: {
       get () {
         return this.dialog.name === 'create-workspace' || this.dialog.name === 'edit-workspace'

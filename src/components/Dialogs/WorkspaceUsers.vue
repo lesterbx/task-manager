@@ -2,10 +2,10 @@
   <md-dialog :md-active.sync="showDialog" :md-fullscreen="false" class="padding">
     <div class="users-header">
       <h3 :class="currentAdmin && 'no-margin'">Workspace Users</h3>
-      <md-button v-if="currentAdmin" @click="setDialog({ name: 'add-user', action: 'addUserToWorkspace', success: 'User added succesfully' })" class="md-primary md-mini" md-menu-trigger>Add User</md-button>
+      <md-button v-if="currentAdmin && online" @click="setDialog({ name: 'add-user', action: 'addUserToWorkspace', success: 'User added succesfully' })" class="md-primary md-mini" md-menu-trigger>Add User</md-button>
     </div>
     <md-divider></md-divider>
-    <md-list class="md-double-line">
+    <md-list v-if="online" class="md-double-line">
       <md-list-item v-for="user in users" :key="user.email">
         <avatar class="margin-right" :fullname="user.firstName + ' ' + user.lastName " :size="42"></avatar>
         <div class="md-list-item-text">
@@ -16,6 +16,12 @@
         <user-menu v-if="currentAdmin" :admin="isAdmin(user.email)" :self="currentUser.email === user.email" class="md-list-action" @admin="makeAdmin(user.email)" @revoke="removeAdmin(user.email)" @delete="deleteUser(user.email)" @leave="leave(user.email)"></user-menu>
       </md-list-item>
     </md-list>
+    <md-empty-state
+      v-else
+      md-icon="cloud_off"
+      md-label="No connection"
+      md-description="Sorry, you need connection to see the workspace users">
+    </md-empty-state>
   </md-dialog>
 </template>
 <script>
@@ -24,7 +30,7 @@ import { mapGetters, mapMutations, mapActions } from 'vuex'
 export default {
   components: { UserMenu },
   computed: {
-    ...mapGetters({dialog: 'getDialog', currentUser: 'getUser', users: 'getWorkspaceUsers', admins: 'getWorkspaceAdmins'}),
+    ...mapGetters({dialog: 'getDialog', currentUser: 'getUser', users: 'getWorkspaceUsers', admins: 'getWorkspaceAdmins', online: 'isOnline'}),
     showDialog: {
       get () {
         return this.dialog.name === 'workspace-users'

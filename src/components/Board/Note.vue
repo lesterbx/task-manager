@@ -42,6 +42,9 @@ export default {
 }
 </script>
 <style scoped>
+.note{
+  z-index: 10;
+}
 .note-content {
   width: 100%;
   border: 1px solid #ddd;

@@ -9,7 +9,7 @@
       </md-toolbar>
       <div v-if="authenticated && user">
         <md-toolbar md-elevation="0" class="md-medium padding-left">
-          <div @click="$router.push('/profile')" class="user-preview">
+          <div class="user-preview">
             <avatar :fullname="name" :size="54"></avatar>
             <div class="user-text">
               <h3>{{name}}</h3>

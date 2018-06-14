@@ -7,7 +7,7 @@
     <md-divider></md-divider>
     <div>
       <add-note v-if="addingNote" @add="addNote" @cancel="addingNote = false"></add-note>
-      <draggable class="draggable" @change="noteMoved($event, column._id)" :value="sortedNotes"  :options="{group: 'notes'}" element="div">
+      <draggable class="draggable" @change="noteMoved($event, column._id)" :value="sortedNotes"  :options="{group: 'notes', ghostClass: 'drag-note', chosenClass: 'drag-note', dragClass: 'drag-note'}" element="div">
         <transition-group class="padding" name="note" tag="div">
           <note v-for="note in sortedNotes" :key="note._id" :note="note"></note>
         </transition-group>
@@ -64,6 +64,9 @@ export default {
 }
 </script>
 <style>
+.drag-note{
+  z-index: 9999;
+}
 .column{
   width: 270px;
   max-height: calc(100vh - 64px - 2em);
